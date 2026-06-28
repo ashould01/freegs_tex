@@ -21,15 +21,18 @@ grestore
 %
 \RequirePackage{fix-cm}
 %
-%\documentclass{svjour3}                     % onecolumn (standard format)
-%\documentclass[smallcondensed]{svjour3}     % onecolumn (ditto)
-%\documentclass[smallextended]{svjour3}       % onecolumn (second format)
+% \documentclass{svjour3}                     % onecolumn (standard format)
+% \documentclass[smallcondensed]{svjour3}     % onecolumn (ditto)
+% \documentclass[smallextended]{svjour3}       % onecolumn (second format)
 \documentclass[twocolumn]{svjour3}          % twocolumn
 %
 \smartqed  % flush right qed marks, e.g. at end of proof
 %
 \usepackage{graphicx}
-
+\usepackage{multirow}
+\usepackage{adjustbox}
+\usepackage{subcaption}
+\usepackage{hyperref}
 
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -99,9 +102,94 @@ subject classification numbers as needed.
 \subclass{MSC code1 \and MSC code2 \and more}
 \end{abstract}
 
-\section{Introduction}
-\label{intro}
-Your text comes here. Separate text sections with
+\section{Introduction}\label{intro}
+
+The Grad-Shafranov equation \cite{GRAD,SHAFRANOV} is derived from the ideal 
+magnetohydrodynamics (MHD) equations under the assumption of axisymmetry.
+To reconstruct the plasma equilibrium, one solve the Grad-Shafranov equation
+Because of the nonlinear nature of the equation,
+
+Grad-Shafranov equation 
+
+\section{Related Work}
+
+\subsection{Numerical algorithms for Plasma Equilibrium and the Grad-Shafranov Equation}
+
+Several works \cite{Lao_1985,BLUM,RT-EFIT,EFIT++,LIUQE,HAN2021,SPECTRAL,adaptiveGradShafranov,jeon,freegsnke} 
+are made to 
+address the numerical solution of the Grad-Shafranov equation with various tokamak devices,
+various numerical methods such as finite difference, finite element, and spectral methods, 
+but due to the nonlinear nature of the equation, iterative methods are commonly employed.
+\cite{Lao_1985} developed an equilibrium reconstruction framework for estimating current-profile
+parameters and plasma shapes in tokamaks, and their parametrization of the pressure and 
+poloidal-current profiles (Lao-type profiles) has been widely adopted in 
+Grad--Shafranov equilibrium reconstruction codes.
+\cite{RT-EFIT} proposed a real-time equilibrium reconstruction algorithm for the 
+Grad-Shafranov equation in DIII-D \cite{DIIID} tokamak, 
+with reusing the previous measurement data to accelerate the computation.
+This method is widely used to simulate the plasma equilibrium in real-time 
+equilibrium reconstruction to control the plasma shape in tokamak.
+Recently, \cite{freegsnke} proposed
+a Python-based Grad-Shafranov solver, FreeGSNKE, which is a free-boundary Grad-Shafranov solver.
+It uses a finite difference discretization on the computational domain, and uses
+both fixed-point iteration and Jacobian-free Newton-Krylov method.
+It has been tested \cite{validation} from previous widely used numerical solver
+EFIT++ \cite{EFIT++}.
+We will use FreeGSNKE as a baseline numerical solver for the Grad-Shafranov equation in this work.
+
+\subsection{Physics-Informed Neural Operators}
+
+Neural operators (NOs) \cite{DeepONet,FNO,BENO,Transolver} are a class of neural networks 
+designed to learn mappings between function spaces, enabling them to approximate 
+the solution operator of PDEs with given input functions.
+\cite{DeepONet} proposed DeepONet, which is a neural operator architecture 
+based on the universal approximation theorem \cite{UATO} for operators. 
+Its structure is composed of two sub-networks, called the branch net and the trunk net,
+where the branch net takes discretized samples of the input function, 
+and the trunk net takes the coordinates of the output function as input.
+Variants of DeepONet model \cite{NOMAD} have been proposed, for example, 
+\cite{NOMAD} interprets the DeepONet structure as an encoder-decoder structure, 
+and improves the performance to modify the decoder structure so that it can express 
+more complex functions.
+Recently, due to the success of the Transformer architecture \cite{transformer} 
+in many research areas, neural operator architectures based on the transformer have been proposed.
+For example, \cite{BENO} proposed a trasformer-based neural operator architecture,
+to learn the boundary condition of the PDEs with various domain geometries.
+
+Meanwhile, Physics-informed neural networks \cite{PINNs} are a class of neural networks 
+that incorporate physical laws and constraints into the training process,
+allowing them to learn solutions to partial differential equations 
+(PDEs) without relying on labeled data.
+
+\cite{PIDeepONet} combined the above approaches to propose 
+physics-informed neural operators (PINOs).
+It has advantages over PINNs that it can learn the solution operator of PDEs
+without labeled data, and it also has advantages over NOs that it can learn the solution
+operator of PDEs, so it predicts a various solution with various input functions 
+without retraining the model.
+In particular, \cite{PINTO} proposed a physics-informed neural transformer operator (PINTO), 
+which is a transformer-based neural operator architecture with a physics-informed loss function.
+It can be learn the solution operator of PDEs with various boundary conditions, and 
+it has been outperformed the previous neural operator architectures in various PDEs.
+
+\subsection{Predicting Plasma Equilibrium with Neural Operators}
+
+
+\begin{figure*}\label{fig:tokamak}
+  \centering
+  \includegraphics[width=0.6\textwidth]{img/tokamak_real.jpg}
+  \includegraphics[width=0.22\textwidth]{img/tokamak.png}
+  \caption{
+    Left: Internal view of the Joint European Torus (JET) vessel with a metallic wall.
+    Image source: EUROfusion / Wikimedia Commons, licensed under CC BY 4.0.
+    Right: Modeling toroidal slice of the MAST-U tokamak using FreeGSNKE.
+    The blue rectangle is the active coil and solenoid region, the black polygon is 
+    the limiter-facing surface of the tokamak, and the grey polygon is the tokamak structure.
+    See Section~\ref{sec:5.2} for a detailed description of the above terms related to the 
+    tokamak structure.
+    }
+\end{figure*}
+
 
 \section{Preliminaries}
 
@@ -162,7 +250,7 @@ Thus, the plasma current density is affected by the plasma boundary.
 In the next subsection, we will discuss how to determine the plasma boundary.
 
 Several models have been proposed for $p'(\psi)$ and $F'(\psi)$. 
-Here, we adopt the Lao-type profile parametrization \cite{lao} for the plasma current density.
+Here, we adopt the Lao-type profile parametrization \cite{Lao_1985} for the plasma current density.
 \begin{align*}
   J_{\phi, \rm{pl}}(R, Z; \psi) =
   \lambda &\left[\beta_0 \frac{R}{R_{\rm{geo}}}\tilde{j}_p(\psi, \psi_a, \psi_b) + \right. \\
@@ -233,7 +321,22 @@ In this case, the plasma boundary value $\psi_b$ is determined by the largest/sm
 
 Finally, the plasma boundary is the level set of $\psi_b$;
 \[ \partial \Omega_p = \{(R, Z) \in \Omega: \psi(R, Z) = \psi_b\}. \]
-See Figure~\ref{fig:boundary} for examples of the plasma boundary.
+See Figure~\ref{fig:boundary} for the visualization of the plasma boundary.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{img/boundary_case.png}
+  \caption{
+    Simulation of the plasma boundary in the MAST-U tokamak using FreeGSNKE.
+    Left: Diverted plasma with an X-point. The red dashed curve is the plasma boundary,
+    which is determined by the value of $\psi$ at the X-point.
+    Right: Limited plasma. The magenta dashed closed curve in the tokamak structure
+    is the plasma boundary,
+    which is determined by the value of $\psi$ on the limiter-facing surface,
+    as depicted by the black line.
+    }
+  \label{fig:boundary}
+\end{figure}
 
 Given the plasma boundary, the plasma current density $J_{\text{p}, \phi}$ 
 and the correspoinding boundary value of $\psi_{\te{bdry}}$ 
@@ -306,7 +409,7 @@ for the numerical solver, to replace the operator $\cal{F}$ so the overall
 procedure can be accelerated.
 % , as we will describe in the next section.
 In this work, our neural network assisted approach is combined to the 
-freegsnke solver \cite{freegsnke},
+FreeGSNKE solver \cite{freegsnke},
 which uses both a finite difference method and a Jacobian-free Newton-Krylov 
 method to solve the one-step Grad-Shafranov equation. 
 
@@ -315,7 +418,7 @@ method to solve the one-step Grad-Shafranov equation.
 
 \subsection{Physics-Informed Neural Operators}
 
-Neural operators (NOs) \cite{NOs} are a class of neural networks designed to learn mappings between function spaces.
+Neural operators \cite{NOs} are a class of neural networks designed to learn mappings between function spaces.
 Let $\cal{X}$ and $\cal{Y}$ be Banach spaces of functions defined on the bounded domain. 
 Our task is to approximate an operator 
 \[ \cal{N}: \cal{X} \to \cal{Y}, \]
@@ -328,7 +431,7 @@ Then the neural operator $\cal{N}_\theta$ is trained to minimize the loss functi
 where the norm is defined on the function space $\cal{Y}$, and in practice, 
 it is approximated by the discrete $L^2$ norm on the grid points.
 
-Physics-informed neural operators (PINOs) \cite{PINOs} combine 
+Physics-informed neural operators (PINOs) \cite{PIDeepONet,PIFNO} combine 
 the neural operator framework with a physics-informed loss function, 
 which allows them to learn without relying on solution data. 
 Consider a general parametrized elliptic PDE with the form 
@@ -374,7 +477,7 @@ In the next two subsections, the architectures of the two models are described i
 
 \subsubsection{Physics-Informed DeepONet}
 
-DeepONet \cite{deeponet} is one of the most widely used neural operators, 
+DeepONet \cite{DeepONet} is one of the most widely used neural operators, 
 and it is based on the universal approximation theorem for operators. 
 Its structure is composed of two sub-networks, called the branch net and the trunk net.
 The branch net $b = b_{\theta_b}: \bb{R}^m \to \bb{R}^p$ takes discrete samples of the input function $v$, i.e., $v_D = \left[
@@ -390,7 +493,7 @@ Because the trunk net depends on the coordinates, we track the derivatives of th
 with respect to the coordinates $x$ by automatic differentiation \cite{autodiff}. 
 Hence, we are able to learn the DeepONet without access to the solution of the PDE,
 as long as the input function $\psi$ is given. 
-This is the main idea of the physics-informed DeepONet (PI-DeepONet) \cite{PIDeeponet}. 
+This is the main idea of the physics-informed DeepONet (PI-DeepONet) \cite{PIDeepONet}. 
 We utilize the PI-DeepONet as the one-step Grad-Shafranov solver for $\psi$.
 
 \subsubsection{Physics-Informed Neural Transformer Operator}
@@ -480,6 +583,7 @@ which approximates the solution at the query point $x$.
 
 In this section, we present the training procedures for the neural operators and explain how they
 are integrated within the overall algorithm for solving the free-boundary Grad-Shafranov equation. 
+Hereafter, we call the our method as FreeGSNO.
 
 \subsection{Training procedure of neural operators}
 Let us consider the one-step Grad-Shafranov equation \eqref{eq:5}.
@@ -540,7 +644,7 @@ Then we only need to minimize the residual loss
 \[ L(\theta) = \frac{1}{N}\sum_{i=1}^N \int_\Omega |\Delta^* \psi_r^{(n)}(R, Z)+ \mu_0 R J_\phi(R, Z; \psi^{(n-1)})|^2 dR dZ. \]
 The hard-constraint method enforces the boundary condition accurately, 
 while maintaining a residual loss scale comparable to that of the soft constraint method,
-as shown in Section \ref{...}
+as shown in Section \ref{sec:5}.
 
 Next, for \eqref{eq:10}, we use the PINTO to learn the operator
 \[ \cal{N}_b: \cal{X} \to \cal{Y}_{\psi^{(n-1)}}, \ \cal{N}_b [\psi^{(n-1)}] = \psi_b^{(n)}. \]
@@ -565,13 +669,20 @@ Figure~\ref{fig:integrated} shows the structure of the integrated version of the
 and the PINTO for solving the one-step Grad-Shafranov equation.
 
 We now explain the motivation of dividing the problem into two equations.
-Several studies \cite{propagation} describe the ``propagation failure mode'' of the physics-informed neural networks,
-in which a model fails to propagate boundary information into the interior of the domain.
+\cite{propagation} describe the ``propagation failure mode'' 
+of the physics-informed neural networks.
+For example, in the case of a finite element method, the interior solution is affected
+by the boundary values, because the neighboring elements are dependent on each other.
+However, in the case of a neural network, the gradient of the model parameter at 
+different locations are easily orthogonal,
+resulting in an independent optimization of the model parameter at each location and
+the failure of the propagation of the boundary information into the interior of the domain.
 (Figure 1 of \cite{R3} illustrates this phenomenon.)
+% How can I show the 
 
 The transformer architecture is known to be effective for learning  
 long-range dependencies, and hence many studies have been conducted for solving the PDEs 
-with transformer architecture \cite{PINTO, Transolver, BENO}.
+with transformer architecture \cite{PINTO,Transolver,BENO}.
 % However, because the cost of the forward pass of the transformer is high,
 % in many cases the training is done by data-driven approach.
 % On the other hand, 
@@ -590,9 +701,9 @@ for solving the one-step Grad-Shafranov equation.
 
 % 여기에 구체적인 모델 실험 방법과 결과 넣기
 
-\subsection{Integration of the Proposed Model with the Freegsnke Solver}
-The Freegsnke solver is a numerical solver for the Grad-Shafranov equation 
-implemented by the Python package \cite{python}.
+\subsection{Integration of the Proposed Model with the FreeGSNKE Solver}
+The FreeGSNKE solver is a numerical solver for the Grad-Shafranov equation 
+implemented by the Python package.
 It handles three different problems, the static forward problem, the static inverse problem,
 and the evolutive forward problem. 
 In this work we only focus on the static forward Grad-Shafranov solver, and 
@@ -603,7 +714,7 @@ In the early iterations, FreeGSNKE solver uses the simple fixed-point iteration 
 the error is small enough, it switches to the Jacobian-free Newton-Krylov method.
 The detail algorithm is described in Algorithm~\ref{alg:1}.
 
-\begin{algorithm}[H]\label{alg:1}
+\begin{algorithm}
   \begin{algorithmic}
     \STATE \textbf{Input:} The initial guess $\psi^{(0)}$, the tolerance $\ep > 0$,
     $n \gets 1$
@@ -630,6 +741,7 @@ The detail algorithm is described in Algorithm~\ref{alg:1}.
     \STATE \textbf{Output:} The solution $\psi = \psi^{(n)}$ 
   \end{algorithmic}
   \caption{Two-Phase Iterative Method for Solving the Grad-Shafranov Equation}
+  \label{alg:1}
 \end{algorithm}
 Note that the steps in the fixed-point iteration is the same step for computing $\cal{F}$.
 
@@ -638,33 +750,25 @@ and the corresponding part in the Arnoldi iteration (see Appendix~\ref{...})
 for the Jacobian-free Newton-Krylov method, with our neural operator model.
 In the next section, we will show the numerical results of our method, and compare it with the original Freegsnke solver.
 
-\section{Experiments}
+\section{Experiments} \label{sec:5}
 
-We conduct several numerical experiments to validate the performance of our method.
+We conduct several numerical experiments to validate the performance of FreeGSNO.
 
 \subsection{Solov'ev equilibrium}
 
-Solov'ev equilibrium is a simple problem which has an analytical solution,
-and hence this problem is widely used to validate numerical solvers.
+Solov'ev equilibrium assumes that the toroidal current density does not depend on
+the poloidal flux $\psi$, hence it has an analytical solution,
+and this problem is widely used to validate numerical solvers.
 In this case, the Grad-Shafranov equation has a simple form of the toroidal 
 current density, 
 \[ J_\psi(R, Z) = \frac{1}{\mu_0 R} (- A_1 R^2 + A_2), \]
 and the equation is reduced to a linear PDE.
-Then the solution $\psi^*$ can be expressed as a linear combination of the basis functions \cite{analytic}
+Then the solution $\psi^*$ can be expressed as a linear combination of the basis functions \cite{Solovev}
 $\{\psi_i\}_{i=1}^\infty$ and the particular solution of the PDE, as follows:
 \[ \psi^*(R, Z) = \sum_{i=1}^\infty c_i \psi_i(R, Z) + \frac{A_1}{8}R^4 - \frac{A_2}{2}Z^2.\]
 where the coefficients $\{c_i\}_{i=1}^\infty$ are determined by the boundary condition.
 
-We follow \cite{} and we impose the fixed boundary condition; at the parametric curve defined by
-\begin{align*}
-  \gamma(\theta) &= (R_b(\theta), Z_b(\theta)), \\ 
-  R_b(\theta) &= 1 + \epsilon \cos(\theta + \delta \sin \theta), \\
-  Z_b(\theta) &= \epsilon \kappa \sin \theta,
-\end{align*}
-the value of $\psi$ is zero, where $\epsilon$, $\delta$, and $\kappa$ are the 
-parameters for the shape of the plasma boundary.
-
-Also, we use the first 4 basis functions 
+We follow \cite{Solovev} and we use the first 4 basis functions 
 \[ \psi_1 = 1, \psi_2 = R^2, \psi_3 = Z^2 - R^2 \log R, \psi_4 = R^4 - 4R^2 Z^2. \]
 The coefficients $\{c_i\}_{i=1}^4$ are determined from the values of the $\psi$ at 
 selected major boundary points;
@@ -674,40 +778,239 @@ selected major boundary points;
   \item $\partial_R \psi(R_t, Z_t) = 0$,
 \end{itemize}
 where $R_i$ is the inner radius, $R_o$ is the outer radius, and $(R_t, Z_t)$ is the 
-location of the topmost point of the plasma. Figure \ref{fig} shows the 
-example of the solution of the Solov'ev equilibrium with the above parameters.
+location of the topmost point of the plasma. 
+Figure \ref{fig} shows some examples of the solution of the Solov'ev equilibrium with the above parameters and its corresponding plasma boundary.
 
-To verify our method, we set the computational domain $\Omega$ as $[0.5, 1.5] \times [-0.6, 0.6]$,
+We set the computational domain $\Omega$ as $[0.5, 1.5] \times [-0.6, 0.6]$,
 without the tokamak geometry.
-Then we sample 10,000 parameter tuples $A_1, A_2 \in [0, 1], \epsilon \in [0.2, 0.3], 
-\delta\in[0, 0.5]$, and $\kappa \in [1.0, 1.8]$ with the uniform distribution,
-to generate the input dataset for the neural operators.
-We discretize the domain with $N_R = 65$ and $N_Z = 129$ grid points 
+Then we sample 7,500 parameter tuples $A_1, A_2 \in [0, 1], R_o \in [1.2, 1.3], R_i \in [0.7, 0.8], R_t \in [0.7, 1.0]$, and $Z_t \in [0.2, 0.54]$,
+with each parameter is chosen uniformly at random, and we prune some samples 
+so that $R_i < R_t < R_o$, $J_\phi$ does not change sign in the plasma region, and 
+the source term is not too big so that the training is stable.
+We discretize the domain with $N_R = 65$ and $N_Z = 65$ grid points 
 to compute the toroidal current density and the boundary value for the training of the neural operators.
 
-Then we train the neural operators with the above formulation.
-First, the branch for the modified PI-DeepONet has three convolutional layers with 16, 32, and 32 channels.
+Then we train the neural operators with the below architecture details.
+First, the branch net for the modified PI-DeepONet has three convolutional layers with 32, 64, and 64 channels.
 Each convolutional layer has kernel size 3 and stride 1, and global max pooling layer and a 
 ReLU activation function is applied after each convolutional layer.
 Then the output of the last convolutional layer is flattened and fed into two  
-fully-connected layers, with 256 and 64 hidden units with ReLU activation function.
-Second, the trunk net of the modified PI-DeepONet has 2 fully-connected layers with 
-32 hidden units.
-The activation function is a sine function \cite{} and phase shift;
+fully-connected layers, with 1024 and 256 hidden units with ReLU activation function.
+We note that the branch net architecture is not related to the structure of the PDE,
+and we use a larger branch net than the trunk net,
+Second, the trunk net of the modified PI-DeepONet utilizes the Fourier feature mapping \cite{FFM},
+follows by 2 fully-connected layers with 64 hidden units.
+The activation function is a sine function \cite{activationsine} with phase shift;
 \[ \sigma(x) = a \sin(x + b), \]
 where $a$ and $b$ are trainable parameters.
-Third, the decoder for the modified PI-DeepONet has a fully-connected layer with
+Third, the dimension of the latent space (i.e., the output dimension of the branch and trunk net) is 30. The decoder for the modified PI-DeepONet has a fully-connected layer with
 64 hidden units, and the activation function is same as the trunk net.
 
-Meanwhile, each input to PINTO is encoded by a fully-connected layer with 32 hidden layers 
-and SiLU activation function.
-Then the single-head attention is performed, and the output is decoded by
-a fully-connected layer with 32 hidden layers and SiLU activation function.
+Meanwhile, each input to PINTO is encoded by a fully-connected layer with 32 hidden units 
+and SiLU activation function, to make a hidden representation of dimension 30.
+Then the multi-head attention with two heads is performed, and after each multi-head attention 
+is ended, the multi-layer perceptron with 64 hidden units and SiLU activation function is applied. 
+The skip connection is applied to each layer, and there are 2 multi-head attention layers in total.
+The output is decoded by a fully-connected layer with 32 hidden layers and SiLU activation function.
 
-Figure \ref{fig} shows the comparison of the analytic solution and the predicted solution by the neural operators.
-...
+At training, we use adam optimizers for both models, with the starting learning rate of $10^{-3}$,
+and the exponential decay scheduler with the decay rate of 0.9. 
+We train the models for 5000 epochs, and as we described above, the loss function for the 
+residual net (PI-DeepONet) is only the residual loss, while the loss function for the boundary net
+(PINTO) is the weighted sum of the residual loss and the boundary loss, 
+with the weight of 10 for the boundary loss, i.e.,
+\[ L(\theta) = \frac{1}{1 + w_\te{bdry}} L_\te{PDE} +
+\frac{w_\te{bdry}}{1 + w_\te{bdry}} L_\te{bdry}. \] 
+with $w_\te{bdry} = 10$.
+The final training loss is $...$ for the residual net, and $...$ for the boundary net.
 
+For testing, we sample 1,000 parameter tuples with the same distribution as the training set, 
+and we compute the absolute and relative $L^2$ error between the analytic solution and the predicted solution by the neural operators.
+Table \ref{...} shows the mean and standard deviation of the absolute and relative $L^2$ error 
+for the test set, and Figure \ref{fig:1} shows the comparison of the analytic solution and 
+the predicted solution by the neural operators.
+We observe that the neural operators can predict the solution of the Grad-Shafranov equation with 
+high accuracy, and it can capture the plasma boundary well.
 
+\begin{figure*}\label{fig:1}       
+  \centering
+  \includegraphics[width=0.85\textwidth]{img/Solovev.png}
+  \caption{The solution of the Solov'ev equilibrium with the parameters $A_1 = 0.3, A_2 = 0.16, 
+  R_i = 0.75, R_o = 1.25, R_t = 0.9, Z_t = 0.375.$ The left figure is the predicted solution 
+  by the neural operators, and the middle figure is the analytic solution, and the right figure 
+  is the absolute error between the two solutions. The top row is $\psi$ and the middle row is the 
+  result of the residual net $\psi_r$, and the bottom row is the result of the boundary net
+  $\psi_b$. We obtain the absolute solution for $\psi_r$ and $\psi_b$ by customizing 
+  the conditions for the FreeGS solver. Here the physical parameters are $I_p = -15.76 MA$,
+  $\beta_p = 0.0816$.}
+\end{figure*}
+
+\subsection{MAST-U tokamak equilibrium}\label{sec:5.2}
+
+To further validate the performance of our method in the free-boundary Grad-Shafranov problem, 
+we conduct an experiment for the MAST-U tokamak equilibrium.
+
+Mega Amp Spherical Tokamak Upgrade (MAST-U) \cite{MASTU} is a spherical tokamak located in the United Kingdom.
+It is designed to explore the physics knowledge for the spherical tokamak design, to extend
+physics understanding of the fusion programs.
+For the equilibrium reconstruction modeling of MAST-U, we need three major machine
+descriptions below;
+\begin{itemize}
+  \item active poloidal field coils,
+  \item passive structures, and
+  \item limiter/wall structure.
+\end{itemize}
+MAST-U contains 12 active poloidal field coils, 150 passive structures 
+(i.e., the vessel, gas baffles, coil cases, etc.), and a limiter structure.
+See Figure~\ref{fig:mast} for the locations of the structures and 
+see \cite{validation} for the detailed description of the MAST-U machine.
+
+FreeGSNKE solver has options to model each current of the active poloidal field coils,
+refine and distribute the currents of the passive structures, and model the limiter structure
+as a pairs of coordinates that form the closed polygon.
+We note that the FreeGSNKE is not bound to the MAST-U machine and 
+be able to model any tokamak machine with different machine descriptions;
+
+To train the neural operators for the MAST-U equilibrium, 
+we set the computational domain $\Omega$ as 
+$[0.1 \te{m}, 2.0 \te{m}]  \times [-2.2 \te{m}, 2.2 \te{m}]$ 
+and we discretize the domain with $N_R = 65$ and $N_Z = 129$ grid points.
+
+Then, we sample 100 parameter tuples
+$(p_{\te{axis}}, I_p)$ where $p_{\te{axis}}$ is the pressure at the magnetic axis and 
+$I_p$ is the total plasma current. 
+Because the parameter 
+\[ \beta_\te{pol} = \frac{8\pi}{\mu_0} \frac{\langle p \rangle}{I_p^2} \sim 
+\frac{\langle p \rangle}{I_p^2}, \]
+where $\langle p \rangle$ is the volume-averaged plasma pressure, is a dimensionless
+parameter that represents the ratio of the plasma pressure to the poloidal magnetic field pressure, 
+it affects the shape of the plasma region.
+Hence, it is reasonable to sample the parameters near the typical value of $\beta_\te{pol}$ 
+for the MAST-U machine. 
+Thus, we follow the example of the FreeGSNKE solver and
+we let $\beta_0 = 0.22 \times 10^{-2} \te{Pa} / \te{kA}^2$ and we sample 
+the parameters $(p_{\te{axis}}, I_p)$ from the uniform distribution with 
+the range of $I_p \in [550\te{kA}, 650\te{kA}] $ and 
+$p_{\te{axis}} \in [0.6 \beta_0 I_p^2, 1.4 \beta_0  I_p^2]$. 
+(We fix the currents of the active coils and we set zero current for the passive structures,
+to focus on the static forward Grad-Shafranov problem. 
+But we note that our method can be extended to the case with different 
+currents of the active coils and passive structures.)
+
+Then we run the FreeGSNKE solver, with the discretized domain and 
+varying sampled physical parameters, to obtain 
+the toroidal current density and the boundary value as the operator 
+$\cal{F}$ is computed in both the fixed-point iteration and the Jacobian-free Newton-Krylov method.
+for the training of the neural operators.
+We set the other configuration of the FreeGSNKE solver as the default setting.
+For example, the changing criterion from the fixed-point iteration 
+to the Jacobian-free Newton-Krylov method is the value
+\[ \frac{\max \left( \Delta \psi^{(n)} \right) - \min \left( \Delta \psi^{(n)} \right)}
+{\max\left(\psi^{(n)}\right) - \min\left(\psi^{(n)}\right)} 
+\] is below $0.1$, where $\Delta \psi^{(n)} = \psi^{(n)} - \psi^{(n-1)}$,
+and the stopping criterion for the overall iteration is the value of the
+above quantity is below $10^{-9}$.
+We obtain 6,299 samples for the training set, and 700 samples for the test set. 
+
+The train procedure for the neural operators is similar as the Solov'ev equilibrium case,
+but the total epochs is 1,000 because the training data is larger than the  
+architecture and training procedure for the Solov'ev equilibrium.
+Figure \ref{fig:} shows for the training loss progress of the residual net and the boundary net,
+and Table~\ref{tab:1} compares the value of $\psi$ and the location of the X-point,
+plasma boundary value, and the value of $\psi$ and the location of the magnetic axis, 
+between the FreeGSNO and FreeGSNKE solvers for the MAST-U tokamak equilibrium 
+with different physical parameters $(p_{\text{axis}}, I_p)$. 
+Also, Figure~\ref{fig:4} shows the comparison of the predicted solution by the neural operators and
+the solution by the FreeGSNKE solver.
+We observe that the neural operators, combined with the Jacobian-free Newton-Krylov method, 
+converges to a solution with high accuracy, and it can capture the plasma boundary well.
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=0.85\linewidth]{img/mast_u_diverted.png}
+  \caption{The comparison between the predicted (converged) solution by the neural operators and the
+  numerical solution by the FreeGSNKE solver for the MAST-U tokamak equilibrium. Leftmost:
+  the predicted solution by the neural operators. Middle left: the solution by the 
+  FreeGSNKE solver. 
+  Middle right: the absolute error $\psi_\te{pred} - \psi_\te{num}$. 
+  Rightmost: the boundary description of each solution. 
+  The black solid line is a tokamak structure, the magenta dashed line is the plasma boundary, 
+  and the red cross is the location of the magnetic axis. 
+  The physical parameters are $p_\te{axis} = 8$ kPa and $I_p = 600$ kA. 
+  }
+  \label{fig:4}
+\end{figure*}
+\begin{table*}[t]
+  \begin{adjustbox}{angle=90}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+    \hline
+    \multicolumn{2}{|c|}{Parameters $(p_{\text{axis}}, I_p)$} & case &
+    X-point value & X-point position & boundary value & axis value & axis position & 
+    iteration & 
+    $\Delta \psi_{\te{bdry}}$ & $\Delta \psi_{\te{axis}}$ \\
+    \hline
+    \multirow{2}{*}{($8$ kPA, $600$ kA)} & 
+    FreeGSNO & diverted & $2.8770\times 10^{-2}$ & $(0.596, -1.096)$ & 
+    $2.8770\times 10^{-2}$ & $9.1293 \times 10^{-2}$ & $(0.941, 0.000)$ & 27 &
+    \multirow{2}{*}{$-1.6089 \times 10^{-4}$} & \multirow{2}{*}{$-1.0409 \times 10^{-3}$} \\
+    & FreeGSNKE & diverted & $2.8931\times 10^{-2}$ & $(0.599, -1.099)$ & 
+    $2.8931\times 10^{-2}$ & $9.2334 \times 10^{-2}$ & $(0.947, -0.000)$ & 26 & & \\
+    \hline
+    \multirow{2}{*}{($6$ kPA, $550$ kA)} & 
+    FreeGSNO & diverted & $2.5109\times 10^{-2}$ & $(0.555, -1.015)$ & 
+    $2.5109\times 10^{-2}$ & $7.5529 \times 10^{-2}$ & $(0.843, -0.001)$ & 26 &
+    \multirow{2}{*}{$-3.0554 \times 10^{-6}$} & \multirow{2}{*}{$-4.6253 \times 10^{-4}$} \\
+    & FreeGSNKE & diverted & $2.5111\times 10^{-2}$ & $(0.552, -1.014)$ & 
+    $2.5111 \times 10^{-2}$ & $7.5992 \times 10^{-2}$ & $(0.843, -0.000)$ & 26 & & \\
+    \hline
+    \multirow{2}{*}{($10$ kPA, $650$ kA)} & 
+    FreeGSNO & diverted & $3.264\times 10^{-2}$ & $(0.640, -1.175)$ & 
+    $3.264\times 10^{-2}$ & $1.0805 \times 10^{-1}$ & $(1.036, -0.001)$ & 27 &
+    \multirow{2}{*}{$-3.9690 \times 10^{-4}$} & \multirow{2}{*}{$-2.6193 \times 10^{-3}$} \\
+    & FreeGSNKE & diverted & $3.3037\times 10^{-2}$ & $(0.646, -1.181)$ & 
+    $3.3037 \times 10^{-2}$ & $1.1067 \times 10^{-1}$ & $(1.056, -0.000)$ & 27 & & \\
+    \hline
+    \end{tabular}
+  \end{adjustbox}
+  \caption{
+    Comparison of the results between the FreeGSNO and FreeGSNKE solvers for the 
+    MAST-U tokamak equilibrium with different physical parameters $(p_{\text{axis}}, I_p)$. 
+    `Case' indicates whether the plasma is diverted or limited, X-point value and position 
+    are the largest value of $\psi$ on X-points and its corresponding position,
+    boundary value is the value of $\psi$ on the plasma boundary, 
+    axis value and position are the value of $\psi$ on the magnetic axis and its position, and
+    iteration is the sum of iterations for the fixed-point iteration and the Jacobian-free Newton-Krylov method, with the stopping criterion of $10^{-9}$ for the residual loss.
+    Lastly, $\Delta \psi_{\te{bdry}}$ and $\Delta \psi_{\te{axis}}$ are the differences of the boundary value and the magnetic axis value between the two solvers.
+  }\label{tab:1}
+\end{table*}
+
+\section{Summary, Conclusions and Future Work}
+In this work, we propose a method FreeGSNO which uses neural operators to solve the free-boundary 
+Grad-Shafranov equation.
+The proposed method is based on the decomposition of the solution into the residual part and the boundary part, and we use the PI-DeepONet for the residual part and the PINTO for the boundary part.
+We train the neural operators with only physics-informed loss functions, therefore
+our method does not require any labeled data, to expect the physically meaningful solution.
+Then we combine the neural operators with the iteration method, 
+to solve the Grad-Shafranov equation in each iteration step.
+
+We conduct several numerical experiments to validate the performance of the proposed method.
+First, we conduct the Solov'ev equilibrium problem, which is a fixed-boundary 
+Grad-Shafranov problem that has an analytical solution, 
+and we show that the neural operators capture the solution with high accuracy.
+Next, we conduct the MAST-U tokamak equilibrium simulation, which is a realistic free-boundary 
+Grad-Shafranov problem, and we show that the combination of the neural operators and the
+traditional iteration method converges to a solution with high accuracy,
+with similar iterations and computation time.
+Especially, FreeGSNO captures the plasma boundary and the magnetic axis well,
+which is important for the equilibrium reconstruction problem in the tokamak machine.
+
+The proposed method shows promising results, therefore we further plan to 
+extend the method to the inverse problem and the evolutive problem, and we will
+conduct more experiments with different tokamak machines and different physical parameters.
+Also, due to the advance of the computation power, we can further improve the 
+speed of the proposed method so the neural operators is faster than the traditional method,
+with training only once.
 
 
 
@@ -722,14 +1025,6 @@ Figure \ref{fig} shows the comparison of the analytic solution and the predicted
 % \end{figure}
 %
 % For two-column wide figures use
-% \begin{figure*}
-% Use the relevant command to insert your figure file.
-% For example, with the graphicx package use
-  % \includegraphics[width=0.75\textwidth]{example.eps}
-% figure caption is below the figure
-% \caption{Please write your figure caption here}
-% \label{fig:2}       % Give a unique label
-% \end{figure*}
 %
 % For tables use
 % \begin{table}
@@ -747,7 +1042,6 @@ Figure \ref{fig} shows the comparison of the analytic solution and the predicted
 % \end{tabular}
 % \end{table}
 
-
 %\begin{acknowledgements}
 %If you'd like to thank anyone, place your comments here
 %and remove the percent signs.
@@ -764,25 +1058,25 @@ Figure \ref{fig} shows the comparison of the analytic solution and the predicted
 
 
 % BibTeX users please use one of
-%\bibliographystyle{spbasic}      % basic style, author-year citations
-%\bibliographystyle{spmpsci}      % mathematics and physical sciences
+% \bibliographystyle{spbasic}      % basic style, author-year citations
+\bibliographystyle{spmpsci}      % mathematics and physical sciences
 %\bibliographystyle{spphys}       % APS-like style for physics
-%\bibliography{}   % name your BibTeX data base
+\bibliography{ref}   % name your BibTeX data base
 
 % Non-BibTeX users please use
-\begin{thebibliography}{}
-%
-% and use \bibitem to create references. Consult the Instructions
-% for authors for reference list style.
-%
-\bibitem{RefJ}
-% Format for Journal Reference
-Author, Article title, Journal, Volume, page numbers (year)
-% Format for books
-\bibitem{RefB}
-Author, Book title, page numbers. Publisher, place (year)
-% etc
-\end{thebibliography}
+% \begin{thebibliography}{}
+% %
+% % and use \bibitem to create references. Consult the Instructions
+% % for authors for reference list style.
+% %
+% \bibitem{RefJ}
+% % Format for Journal Reference
+% Author, Article title, Journal, Volume, page numbers (year)
+% % Format for books
+% \bibitem{RefB}
+% Author, Book title, page numbers. Publisher, place (year)
+% % etc
+% \end{thebibliography}
 
 \end{document}
 % end of file template.tex

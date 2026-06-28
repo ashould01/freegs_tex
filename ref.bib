@@ -1,0 +1,430 @@
+% Related work
+% Numerical part
+
+@article{GRAD,
+  title = {Hydromagnetic Equilibria and Force-Free Fields},
+  author = {Grad, Harold and Rubin, Hanan},
+  year = 1958,
+  journal = {Journal of Nuclear Energy (1954)},
+  volume = {7},
+  number = {3},
+  pages = {284--285},
+  issn = {0891-3919},
+  doi = {10.1016/0891-3919(58)90139-6}
+}
+@ARTICLE{SHAFRANOV,
+       author = {{Shafranov}, V.~D.},
+        title = "{Plasma Equilibrium in a Magnetic Field}",
+      journal = {Reviews of Plasma Physics},
+         year = 1966,
+        month = jan,
+       volume = {2},
+        pages = {103},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1966RvPP....2..103S},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}
+
+@article{Note,
+  author = {Youjun Hu},
+  title = {Notes on tokamak equilibrium},
+}
+
+@article{Lao_1985,
+doi = {10.1088/0029-5515/25/11/007},
+url = {https://doi.org/10.1088/0029-5515/25/11/007},
+year = {1985},
+month = {nov},
+publisher = {},
+volume = {25},
+number = {11},
+pages = {1611},
+author = {Lao, L.L. and St. John, H. and Stambaugh, R.D. and Kellman, A.G. and Pfeiffer, W.},
+title = {Reconstruction of current profile parameters and plasma shapes in tokamaks},
+journal = {Nuclear Fusion},
+abstract = {An efficient method is given to reconstruct the current profile parameters, the plasma shape, and a current profile consistent with the magnetohydrodynamic equilibrium constraint from external magnetic measurements, based on a Picard iteration approach which approximately conserves the measurements. Computational efforts are reduced by parametrizing the current profile linearly in terms of a number of physical parameters. Results of detailed comparative calculations and a sensitivity study are described. Illustrative calculations to reconstruct the current profiles and plasma shapes in ohmically and auxiliarily heated Doublet III plasmas are given which show many interesting features of the current profiles.}
+}
+
+@article{RT-EFIT,
+doi = {10.1088/0029-5515/38/7/308},
+url = {https://doi.org/10.1088/0029-5515/38/7/308},
+year = {1998},
+month = {jul},
+publisher = {},
+volume = {38},
+number = {7},
+pages = {1055},
+author = {J.R. Ferron and M.L. Walker and L.L. Lao and H.E. St. John and D.A. Humphreys and J.A. Leuer},
+title = {Real time equilibrium reconstruction 
+for tokamak discharge control},
+journal = {Nuclear Fusion},
+abstract = {A practical method for performing a tokamak equilibrium reconstruction in real time  for arbitrary time varying discharge shapes and current profiles is described. An approximate solution to the Grad-Shafranov equilibrium relation is found which best fits the diagnostic measurements. Thus, a solution for the spatial distribution of poloidal flux and toroidal current density is available in real time that is consistent with plasma force balance, allowing accurate evaluation of parameters such as discharge shape and safety factor profile. The equilibrium solutions are produced at a rate sufficient for discharge control. This equilibrium reconstruction algorithm has been implemented on the digital plasma control system for the DIII-D tokamak. The first application of real time equilibrium reconstruction to discharge shape control is described.}
+}
+@article{DIIID,
+  title = {A Design Retrospective of the {{DIII-D}} Tokamak},
+  author = {Luxon, J. L.},
+  year = {2002},
+  journal = {Nuclear Fusion},
+  volume = {42},
+  number = {5},
+  pages = {614--633},
+  doi = {10.1088/0029-5515/42/5/313}
+}
+
+@article{BLUM,
+  title = {Reconstruction of the Equilibrium of the Plasma in a {{Tokamak}} and Identification of the Current Density Profile in Real Time},
+  author = {Blum, J. and Boulbe, C. and Faugeras, B.},
+  date = {2012},
+  journaltitle = {Journal of Computational Physics},
+  volume = {231},
+  number = {3},
+  pages = {960--980},
+  issn = {0021-9991},
+  doi = {10.1016/j.jcp.2011.04.005},
+  url = {https://www.sciencedirect.com/science/article/pii/S0021999111002294},
+  abstract = {The reconstruction of the equilibrium of a plasma in a Tokamak is a free boundary problem described by the Grad–Shafranov equation in axisymmetric configuration. The right-hand side of this equation is a nonlinear source, which represents the toroidal component of the plasma current density. This paper deals with the identification of this nonlinearity source from experimental measurements in real time. The proposed method is based on a fixed point algorithm, a finite element resolution, a reduced basis method and a least-square optimization formulation. This is implemented in a software called Equinox with which several numerical experiments are conducted to explore the identification problem. It is shown that the identification of the profile of the averaged current density and of the safety factor as a function of the poloidal flux is very robust.},
+  keywords = {Finite elements method,Fusion plasma,Grad–Shafranov equation,Inverse problem,Real-time}
+}
+@article{SPECTRAL,
+  title = {A Mimetic Spectral Element Solver for the {{Grad}}--{{Shafranov}} Equation},
+  author = {Palha, A. and Koren, B. and Felici, F.},
+  year = 2016,
+  month = jul,
+  journal = {Journal of Computational Physics},
+  volume = {316},
+  pages = {63--93},
+  issn = {0021-9991},
+  doi = {10.1016/j.jcp.2016.04.002},
+  urldate = {2026-01-02},
+  abstract = {In this work we present a robust and accurate arbitrary order solver for the fixed-boundary plasma equilibria in toroidally axisymmetric geometries. To achieve this we apply the mimetic spectral element formulation presented in [56] to the solution of the Grad--Shafranov equation. This approach combines a finite volume discretization with the mixed finite element method. In this way the discrete differential operators (∇, ∇\texttimes, ∇{$\cdot$}) can be represented exactly and metric and all approximation errors are present in the constitutive relations. The result of this formulation is an arbitrary order method even on highly curved meshes. Additionally, the integral of the toroidal current J{$\phi$} is exactly equal to the boundary integral of the poloidal field over the plasma boundary. This property can play an important role in the coupling between equilibrium and transport solvers. The proposed solver is tested on a varied set of plasma cross sections (smooth and with an X-point) and also for a wide range of pressure and toroidal magnetic flux profiles. Equilibria accurate up to machine precision are obtained. Optimal algebraic convergence rates of order p+1 and geometric convergence rates are shown for Soloviev solutions (including high Shafranov shifts), field-reversed configuration (FRC) solutions and spheromak analytical solutions. The robustness of the method is demonstrated for non-linear test cases, in particular on an equilibrium solution with a pressure pedestal.},
+  keywords = {Grad-Shafranov,Mimetic discretization,Mixed finite element,Poisson solver,Spectral element,Spectrally accurate},
+  file = {C\:\\Users\\ashould\\Zotero\\storage\\CW829R8R\\Palha et al. - 2016 - A mimetic spectral element solver for the Grad–Shafranov equation.pdf;C\:\\Users\\ashould\\Zotero\\storage\\5T663FQM\\S0021999116300341.html}
+}
+
+@article{HAN2021,
+  title = {A Free-Boundary Equilibrium Solver with a Hybrid Iteration Method in a Semi-Bounded Computational Domain},
+  author = {Han, K. S. and Park, B. H. and Aydemir, A. Y. and Woo, M. H.},
+  year = 2021,
+  month = jul,
+  journal = {Computer Physics Communications},
+  volume = {264},
+  pages = {107888},
+  issn = {0010-4655},
+  doi = {10.1016/j.cpc.2021.107888},
+  urldate = {2025-08-06},
+  abstract = {A novel mapping of the semi-bounded (R,Z) domain to a finite computational domain is used to solve the free-boundary axisymmetric equilibrium problem for tokamaks. Using this new mapping technique, the nonlinear Grad--Shafranov (GS) equation can be solved using only the ``inner iterations'' but with the actual boundary condition at infinity. Eliminating the outer iterations of the traditional algorithms based on, for example, Von Hagenow's method can make the calculation for the free-boundary problem much more straightforward and easier. The accuracy of our methods is demonstrated by comparing our numerical solutions with several analytic solutions of linear GS equations. Both Picard and Newton iterations commonly used to solve the nonlinear GS equation can exhibit convergence problems. We show that each problem can be alleviated by using the two schemes together in a hybrid scheme. The hybrid scheme is also shown to be faster when an appropriate blending parameter is used. These methods are implemented in the Deal Two Equilibrium (DTEQ) code using the open-source deal-II finite element library. The reliability of DTEQ is demonstrated using actual experimental data for various discharge regimes. The results of our mapping technique are validated by comparing with solutions based on Von Hagenow's method, as well as showing much faster computation time.},
+  keywords = {Deal.II,Free-boundary equilibrium,Newton's method,Semi-bounded domain},
+  file = {C\:\\Users\\ashould\\Zotero\\storage\\E9JZQXWT\\Han et al. - 2021 - A free-boundary equilibrium solver with a hybrid iteration method in a semi-bounded computational do.pdf;C\:\\Users\\ashould\\Zotero\\storage\\55NLLF97\\S0010465521000370.html}
+}
+
+
+@article{LIUQE,
+  title = {Tokamak Equilibrium Reconstruction Code {{LIUQE}} and Its Real Time Implementation},
+  author = {Moret, J.-M. and Duval, B.P. and Le, H.B. and Coda, S. and Felici, F. and Reimerdes, H.},
+  year = 2015,
+  month = feb,
+  journal = {Fusion Engineering and Design},
+  volume = {91},
+  pages = {1--15},
+  issn = {09203796},
+  doi = {10.1016/j.fusengdes.2014.09.019},
+  urldate = {2026-01-29},
+  abstract = {Equilibrium reconstruction consists in identifying, from experimental measurements, a distribution of the plasma current density that satisfies the pressure balance constraint. The LIUQE code adopts a computationally efficient method to solve this problem, based on an iterative solution of the Poisson equation coupled with a linear parametrisation of the plasma current density. This algorithm is unstable against vertical gross motion of the plasma column for elongated shapes and its application to highly shaped plasmas on TCV requires a particular treatment of this instability. TCV's continuous vacuum vessel has a low resistance designed to enhance passive stabilisation of the vertical position. The eddy currents in the vacuum vessel have a sizeable influence on the equilibrium reconstruction and must be taken into account. A real time version of LIUQE has been implemented on TCV's distributed digital control system with a cycle time shorter than 200 s for a full spatial grid of 28 by 65, using all 133 experimental measurements and including the flux surface average of quantities necessary for the real time solution of 1.5 D transport equations. This performance was achieved through a thoughtful choice of numerical methods and code optimisation techniques at every step of the algorithm, and was coded in Matlab and Simulink for the off-line and real time version respectively.},
+  langid = {english},
+  file = {C:\Users\ashould\Zotero\storage\9HAZXM5J\Moret et al. - 2015 - Tokamak equilibrium reconstruction code LIUQE and its real time implementation.pdf}
+}
+@article{adaptiveGradShafranov,
+author = {Serino, Daniel A. and Tang, Qi and Tang, Xian-Zhu and Kolev, Tzanio V. and Lipnikov, Konstantin},
+title = {An Adaptive Newton-Based Free-Boundary Grad–Shafranov Solver},
+journal = {SIAM Journal on Scientific Computing},
+volume = {0},
+number = {0},
+pages = {S364-S385},
+year = {0},
+doi = {10.1137/24M1674108},
+URL = {https://doi.org/10.1137/24M1674108},
+eprint = {https://doi.org/10.1137/24M1674108},
+abstract = { Abstract. Equilibria in magnetic confinement devices result from force balancing between the Lorentz force and the plasma pressure gradient. In an axisymmetric configuration like a tokamak, such an equilibrium is described by an elliptic equation for the poloidal magnetic flux, commonly known as the Grad–Shafranov equation. It is challenging to develop a scalable and accurate free-boundary Grad–Shafranov solver, since it is a fully nonlinear optimization problem that simultaneously solves for the magnetic field coil current outside the plasma to control the plasma shape. In this work, we develop a Newton-based free-boundary Grad–Shafranov solver using adaptive finite elements and preconditioning strategies. The free-boundary interaction leads to the evaluation of a domain-dependent nonlinear form of which its contribution to the Jacobian matrix is achieved through shape calculus. The optimization problem aims to minimize the distance between the plasma boundary and specified control points while satisfying two nontrivial constraints, which correspond to the nonlinear finite element discretization of the Grad–Shafranov equation and a constraint on the total plasma current involving a nonlocal coupling term. The linear system is solved by a block factorization, and AMG is called for subblock elliptic operators. The unique contributions of this work include the treatment of a global constraint, preconditioning strategies, nonlocal reformulation, and the implementation of adaptive finite elements. It is found that the resulting Newton solver is robust, successfully reducing the nonlinear residual to 1e-6 and lower in a small handful of iterations while addressing the challenging case to find a Taylor state equilibrium where conventional Picard-based solvers fail to converge. Reproducibility of computational results.This paper has been awarded the “SIAM Reproducibility Badge: Code and data available” as a recognition that the authors have followed reproducibility principles valued by SISC and the scientific computing community. Code and data that allow readers to reproduce the results in this paper are available at https://github.com/mfem/mfem/tree/tds-gs and in the supplementary materials (mfem-tds-gs.zip [18.0MB]). }
+}
+@article{jeon,
+  title = {Development of a Free Boundary {{Tokamak Equilibrium Solver}} ({{TES}}) for {{Advanced Study}} of {{Tokamak Equilibria}}},
+  author = {Jeon, Y. M.},
+  year = 2015,
+  month = sep,
+  journal = {Journal of the Korean Physical Society},
+  volume = {67},
+  number = {5},
+  eprint = {1503.03135},
+  primaryclass = {physics},
+  pages = {843--853},
+  issn = {0374-4884, 1976-8524},
+  doi = {10.3938/jkps.67.843},
+  urldate = {2025-03-22},
+  abstract = {A free-boundary Tokamak Equilibrium Solver (TES), developed for advanced study of tokamak equilibra, is described with two distinctive features. One is a generalized method to resolve the intrinsic axisymmetric instability, which is encountered after all in equilibrium calculation with a free-boundary condition. The other is an extension to deal with a new divertor geometry such as snowflake or X divertors. For validations, the uniqueness of a solution is confirmed by the independence on variations of computational domain, the mathematical correctness and accuracy of equilibrium profiles are checked by a direct comparison with an analytic equilibrium known as a generalized Solovev equilibrium, and the governing force balance relation is tested by examining the intrinsic axisymmetric instabilities. As a valuable application, a snowflake equilibrium that requires a second order zero of the poloidal magnetic field is discussed in the circumstance of KSTAR coil system.},
+  archiveprefix = {arXiv},
+  keywords = {Physics - Plasma Physics},
+  file = {C\:\\Users\\ashould\\Zotero\\storage\\GUUYEHTM\\Jeon - 2015 - Development of a free boundary Tokamak Equilibrium Solver (TES) for Advanced Study of Tokamak Equili.pdf;C\:\\Users\\ashould\\Zotero\\storage\\IWNR2WY9\\1503.html}
+}
+@inproceedings{EFIT++,
+  title={A Unified Approach to Equilibrium Reconstruction},
+  author={L. Appel and G. T. A. Huysmans and Lang L. Lao and Patrick McCarthy and D. G. Muir and E R Solano and John Storrs and David Martin Andrew Taylor and W. Zwingmann},
+  year={2005},
+  url={https://api.semanticscholar.org/CorpusID:250445510}
+}
+
+@article{validation,
+  title = {Validation of the Static Forward {{Grad}}--{{Shafranov}} Equilibrium Solvers in {{FreeGSNKE}} and {{Fiesta}} Using {{EFIT}}++ Reconstructions from {{MAST-U}}},
+  author = {Pentland, K and Amorisco, N C and {El-Zobaidi}, O and Etches, S and Agnello, A and Holt, G K and Ross, A and Vincent, C and Buchanan, J and Pamela, S J P and McArdle, G and Kogan, L and Cunningham, G},
+  year = 2025,
+  month = jan,
+  journal = {Physica Scripta},
+  volume = {100},
+  number = {2},
+  pages = {025608},
+  publisher = {IOP Publishing},
+  doi = {10.1088/1402-4896/ada192},
+  abstract = {A key aspect in the modelling of magnetohydrodynamic (MHD) equilibria in tokamak devices is having access to fast, accurate, and stable numerical simulation methods. There is an increasing demand for reliable methods that can be used to develop traditional or machine learning-based shape control feedback systems, optimise scenario designs, and integrate with other plasma edge or transport modelling codes. To handle such applications, these codes need to be flexible and, more importantly, they need to have been validated against both analytically known and real-world tokamak equilibria to ensure they are consistent and credible. In this paper, we are interested in solving the static forward Grad--Shafranov (GS) problem for free--boundary MHD equilibria. Our focus is on the validation of the static forward solver in the Python-based equilibrium code FreeGSNKE by solving equilibria from magnetics-only EFIT++ reconstructions of MAST-U shots. In addition, we also validate FreeGSNKE against equilibria simulated using the well-established MATLAB-based equilibrium code Fiesta. To do this, we develop a computational pipeline that allows one to load the same (a)symmetric MAST-U machine description into each solver, specify the required inputs (active/passive conductor currents, plasma profiles and coefficients, etc.) from EFIT++, and solve the GS equation for all available time slices across a shot. For a number of different MAST-U shots, we demonstrate that both FreeGSNKE and Fiesta can successfully reproduce various poloidal flux quantities and shape targets (e.g. midplane radii, magnetic axes, separatrices, X-points, and strikepoints) in agreement with EFIT++ calculations to a very high degree of accuracy. We also provide public access to the code/data required to load the MAST-U machine description in FreeGSNKE/Fiesta and reproduce the equilibria in the shots shown.}
+}
+
+@article{EAST,
+  title = {{{EAST}} Plasma Control System},
+  author = {Xiao, B.J. and Humphreys, D.A. and Walker, M.L. and Hyatt, A. and Leuer, J.A. and Mueller, D. and Penaflor, B.G. and Pigrowski, D.A. and Johnson, R.D. and Welander, A. and Yuan, Q.P. and Wang, H.Z. and Luo, J.R. and Luo, Z.P. and Liu, C.Y. and Liu, L.Z. and Zhang, K.},
+  year = 2008,
+  journal = {Fusion Engineering and Design},
+  volume = {83},
+  number = {2},
+  pages = {181--187},
+  issn = {0920-3796},
+  doi = {10.1016/j.fusengdes.2007.12.028},
+  abstract = {Experimental advanced superconducting tokamak (EAST), the first tokomak with ITER-like fully superconductive poloidal and toroidal coils, successfully completed its engineering commission in March 2006; had its first plasma in September 2006 [B.N. Wan, et al., The first plasma of EAST, in: 21st IAEA Fusion Energy Conference, Chengdu, China, 16--21 October, 2007. [1]] and further generated diverted plasma in January 2007. The plasma control system was adapted from DIII-D plasma control system architecture and jointly developed by the DIII-D and EAST plasma control team. After briefly outlining the hardware and software architecture of the EAST plasma control system, this paper summarizes the plasma control results in the first plasma and first diverted plasma campaigns.},
+  keywords = {Diverted plasma,EAST,Plamsa control,Tokamak}
+}
+@article{MASTU,
+  title = {Overview of New {{MAST}} Physics in Anticipation of First Results from {{MAST Upgrade}}},
+  author = {Harrison, J.R. and Akers, R.J. and Allan, S.Y. and Allcock, J.S. and Allen, J.O. and Appel, L. and Barnes, M. and Ben Ayed, N. and Boeglin, W. and Bowman, C. and Bradley, J. and Browning, P. and Bryant, P. and Carr, M. and Cecconello, M. and Challis, C.D. and Chapman, S. and Chapman, I.T. and Colyer, G.J. and Conroy, S. and Conway, N.J. and Cox, M. and Cunningham, G. and Dendy, R.O. and Dorland, W. and Dudson, B.D. and Easy, L. and Elmore, S.D. and Farley, T. and Feng, X. and Field, A.R. and Fil, A. and Fishpool, G.M. and Fitzgerald, M. and Flesch, K. and Fox, M.F.J. and Frerichs, H. and Gadgil, S. and Gahle, D. and Garzotti, L. and Ghim, Y.-C. and Gibson, S. and Gibson, K.J. and Hall, S. and Ham, C. and Heiberg, N. and Henderson, S.S. and Highcock, E. and Hnat, B. and Howard, J. and Huang, J. and Irvine, S.W.A. and Jacobsen, A.S. and Jones, O. and Katramados, I. and Keeling, D. and Kirk, A. and Klimek, I. and Kogan, L. and Leland, J. and Lipschultz, B. and Lloyd, B. and Lovell, J. and Madsen, B. and Marshall, O. and Martin, R. and McArdle, G. and McClements, K. and McMillan, B. and Meakins, A. and Meyer, H.F. and Militello, F. and Milnes, J. and Mordijck, S. and Morris, A.W. and Moulton, D. and Muir, D. and Mukhi, K. and {Murphy-Sugrue}, S. and Myatra, O. and Naylor, G. and Naylor, P. and Newton, S.L. and O'Gorman, T. and Omotani, J. and O'Mullane, M.G. and Orchard, S. and Pamela, S.J.P. and Pangione, L. and Parra, F. and Perez, R.V. and Piron, L. and Price, M. and Reinke, M.L. and Riva, F. and Roach, C.M. and Robb, D. and Ryan, D. and Saarelma, S. and Salewski, M. and Scannell, S. and Schekochihin, A.A. and Schmitz, O. and Sharapov, S. and Sharples, R. and Silburn, S.A. and Smith, S.F. and Sperduti, A. and Stephen, R. and {Thomas-Davies}, N.T. and Thornton, A.J. and Turnyanskiy, M. and Valovi{\v c}, M. and Van Wyk, F. and Vann, R.G.L. and Walkden, N.R. and Waters, I. and Wilson, H.R. and Team, the MAST-U and Team, the EUROfusion MST1},
+  year = 2019,
+  month = jun,
+  journal = {Nuclear Fusion},
+  volume = {59},
+  number = {11},
+  pages = {112011},
+  publisher = {IOP Publishing},
+  doi = {10.1088/1741-4326/ab121c},
+  abstract = {The mega amp spherical tokamak (MAST) was a low aspect ratio device (R/a\,\,=\,\,0.85/0.65   1.3) with similar poloidal cross-section to other medium-size tokamaks. The physics programme concentrates on addressing key physics issues for the operation of ITER, design of DEMO and future spherical tokamaks by utilising high resolution diagnostic measurements closely coupled with theory and modelling to significantly advance our understanding. An empirical scaling of the energy confinement time that favours higher power, lower collisionality devices is consistent with gyrokinetic modelling of electron scale turbulence. Measurements of ion scale turbulence with beam emission spectroscopy and gyrokinetic modelling in up-down symmetric plasmas find that the symmetry of the turbulence is broken by flow shear. Near the non-linear stability threshold, flow shear tilts the density fluctuation correlation function and skews the fluctuation amplitude distribution. Results from fast particle physics studies include the observation that sawteeth are found to redistribute passing and trapped fast particles injected from neutral beam injectors in equal measure, suggesting that resonances between the m\,\,=\,\,1 perturbation and the fast ion orbits may be playing a dominant role in the fast ion transport. Measured D--D fusion products from a neutron camera and a charged fusion product detector are 40}
+}
+
+
+@article{freegsnke,
+  author = {N. C. Amorisco, S. Pamela et al.},
+  title = {FreeGSNKE: A Python-based dynamic free-boundary toroidal plasma equilibrium solver.},
+  journal = {Phys. Plasmas},
+  year = {2024},
+  volume = {31},
+  number = {4},
+}
+@incollection{DeepONet,
+  title = {Physics-{{Informed Deep Neural Operator Networks}}},
+  booktitle = {Machine {{Learning}} in {{Modeling}} and {{Simulation}}: {{Methods}} and {{Applications}}},
+  author = {Goswami, George Em et al.},
+  editor = {Rabczuk, Timon and Bathe, Klaus-J{\"u}rgen},
+  year = 2023,
+  pages = {219--254},
+  publisher = {Springer International Publishing},
+  address = {Cham},
+  doi = {10.1007/978-3-031-36644-4_6},
+  abstract = {Standard neural networks can approximate general nonlinear operators, represented either explicitly by a combination of mathematical operators, e.g. in an advection--diffusion reaction partial differential equation, or simply as a black box, e.g. a system-of-systems. The first neural operator was the Deep Operator Network (DeepONet) proposed in 2019 based on rigorous approximation theory. Since then, a few other less general operators have been published, e.g. based on graph neural networks or Fourier transforms. For black-box systems, training of neural operators is data driven only but if the governing equations are known they can be incorporated into the loss function during training to develop physics-informed neural operators. Neural operators can be used as surrogates in design problems, uncertainty quantification, autonomous systems, and almost any application requiring real-time inference. Moreover, independently pre-trained DeepONets can be used as components of a complex multi-physics system by coupling them together with relatively light training. Here, we present a review of DeepONet, the Fourier neural operator, and the graph neural operator, as well as appropriate extensions with feature expansions, and highlight their usefulness in diverse applications in computational mechanics, including porous media, fluid mechanics, and solid mechanics.},
+  isbn = {978-3-031-36644-4}
+}
+@inproceedings{FNO,
+title={Fourier Neural Operator for Parametric Partial Differential Equations},
+author={Zongyi Li and Nikola Borislavov Kovachki and Kamyar Azizzadenesheli and Burigede liu and Kaushik Bhattacharya and Andrew Stuart and Anima Anandkumar},
+booktitle={International Conference on Learning Representations},
+year={2021},
+url={https://openreview.net/forum?id=c8P9NQVtmnO}
+}
+
+@ARTICLE{UATO,
+  author={Tianping Chen and Hong Chen},
+  journal={IEEE Transactions on Neural Networks}, 
+  title={Universal approximation to nonlinear operators by neural networks with arbitrary activation functions and its application to dynamical systems}, 
+  year={1995},
+  volume={6},
+  number={4},
+  pages={911-917},
+  keywords={Neural networks;Nonlinear dynamical systems;Computer networks;Kernel;Sufficient conditions;Polynomials;Integral equations;Mathematics;Sun;H infinity control},
+  doi={10.1109/72.392253}}
+
+@inproceedings{
+NOMAD,
+title={{NOMAD}: Nonlinear Manifold Decoders for Operator Learning},
+author={Jacob H Seidman and Georgios Kissas and Paris Perdikaris and George J. Pappas},
+booktitle={Advances in Neural Information Processing Systems},
+editor={Alice H. Oh and Alekh Agarwal and Danielle Belgrave and Kyunghyun Cho},
+year={2022},
+url={https://openreview.net/forum?id=5OWV-sZvMl}
+}
+
+@inproceedings{BENO,
+title={{BENO}: Boundary-embedded Neural Operators for Elliptic {PDE}s},
+author={Wang, Haixin and Jiaxin, LI and Dwivedi, Anubhav and Hara, Kentaro and Wu, Tailin},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=ZZTkLDRmkg}
+}
+@inproceedings{Transolver,
+  title={Transolver: A Fast Transformer Solver for PDEs on General Geometries},
+  author={Haixu Wu and Huakun Luo and Haowen Wang and Jianmin Wang and Mingsheng Long},
+  booktitle={International Conference on Machine Learning},
+  year={2024}
+}
+@inproceedings{transformer,
+  title = {Attention Is All You Need},
+  booktitle = {Advances in Neural Information Processing Systems},
+  author = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N and Kaiser, {\L}ukasz and Polosukhin, Illia},
+  editor = {Guyon, I. and Luxburg, U. Von and Bengio, S. and Wallach, H. and Fergus, R. and Vishwanathan, S. and Garnett, R.},
+  year = 2017,
+  volume = {30},
+  publisher = {Curran Associates, Inc.}
+}
+
+@article{PINNs,
+  title = {Physics-Informed Neural Networks: {{A}} Deep Learning Framework for Solving Forward and Inverse Problems Involving Nonlinear Partial Differential Equations},
+  author = {Raissi, M. and Perdikaris, P. and Karniadakis, G.E.},
+  year = 2019,
+  journal = {Journal of Computational Physics},
+  volume = {378},
+  pages = {686--707},
+  issn = {0021-9991},
+  doi = {10.1016/j.jcp.2018.10.045},
+  abstract = {We introduce physics-informed neural networks -- neural networks that are trained to solve supervised learning tasks while respecting any given laws of physics described by general nonlinear partial differential equations. In this work, we present our developments in the context of solving two main classes of problems: data-driven solution and data-driven discovery of partial differential equations. Depending on the nature and arrangement of the available data, we devise two distinct types of algorithms, namely continuous time and discrete time models. The first type of models forms a new family of data-efficient spatio-temporal function approximators, while the latter type allows the use of arbitrarily accurate implicit Runge--Kutta time stepping schemes with unlimited number of stages. The effectiveness of the proposed framework is demonstrated through a collection of classical problems in fluids, quantum mechanics, reaction--diffusion systems, and the propagation of nonlinear shallow-water waves.},
+  keywords = {Data-driven scientific computing,Machine learning,Nonlinear dynamics,Predictive modeling,Runge-Kutta methods}
+}
+
+@article{PIDeepONet,
+author = {Sifan Wang  and Hanwen Wang  and Paris Perdikaris },
+title = {Learning the solution operator of parametric partial differential equations with physics-informed {DeepONets}},
+journal = {Science Advances},
+volume = {7},
+number = {40},
+pages = {eabi8605},
+year = {2021},
+doi = {10.1126/sciadv.abi8605}
+}
+
+@article{PIFNO,
+title={Physics-Informed Neural Operator for  Learning Partial Differential Equations},
+author={Zongyi Li and Hongkai Zheng and Nikola Borislavov Kovachki and David Jin and Haoxuan Chen and Burigede Liu and Andrew Stuart and Kamyar Azizzadenesheli and Anima Anandkumar},
+year={2022},
+journal={arXiv preprint arXiv:2206.08431},
+url={https://arxiv.org/abs/2206.08431}
+}
+
+@article{PINTO,
+  title = {{{PINTO}}: {{Physics-informed}} Transformer Neural Operator for Learning Generalized Solutions of Partial Differential Equations for Any Initial and Boundary Condition},
+  author = {Boya, Sumanth Kumar and Subramani, Deepak N.},
+  year = 2025,
+  journal = {Computer Physics Communications},
+  volume = {315},
+  pages = {109702},
+  issn = {0010-4655},
+  doi = {10.1016/j.cpc.2025.109702},
+  abstract = {Applications in physics, engineering, mechanics, and fluid dynamics necessitate solving nonlinear partial differential equations (PDEs) with different initial and boundary conditions. Operator learning, an emerging field, solves these PDEs by employing neural networks to map the infinite-dimensional input and output function spaces. These neural operators are trained using data (observations or simulations) and PDE residuals (physics loss). A key limitation of current neural methods is the need to retrain for new initial/boundary conditions and the substantial simulation data required for training. We introduce a physics-informed transformer neural operator (named PINTO) that generalizes efficiently to new conditions, trained solely with physics loss in a simulation-free setting. Our core innovation is the development of iterative kernel integral operator units that use cross-attention to transform domain points of PDE solutions into initial/boundary condition-aware representation vectors, supporting efficient and generalizable learning. The working of PINTO is demonstrated by simulating important 1D and 2D equations used in fluid mechanics, physics and engineering applications: advection, Burgers, and steady and unsteady Navier-Stokes equations (three flow scenarios). We show that under challenging unseen conditions, the relative errors compared to analytical or numerical (finite difference and volume) solutions are low, merely 20},
+  keywords = {AI for PDEs,Initial and boundary generalization,Nonlinear mapping,Operator learning,Physics-informed deep learning,Scientific machine learning,Transformer operator}
+}
+
+
+@article{seperatrix,
+  title = {Reconstruction of Plasma Equilibrium and Separatrix Using Convolutional Physics-Informed Neural Operator},
+  author = {Bonotto, Matteo},
+  year = 2024,
+  journal = {Fusion Engineering and Design},
+  abstract = {In this paper, we present PlaNet (PLAsma equilibrium reconstruction NET work), a Deep-Learning-based tool for performing plasma equilibrium and separatrix reconstruction considering both magnetic and non-magnetic measurements. PlaNet consists of three Neural Networks (NNs) running at three stages: (i) Equilibrium Net, the physics-informed neural operator accounting for the accurate reconstruction of the poloidal flux map; (ii) XPlim Net, which classifies if the equilibrium is diverted or limiter and computes the poloidal flux at the separatrix; and (iii) Separatrix Net, which gives the ({$r$}, {$z$}) coordinates of the separatrix starting from the outputs of the previous stages. The plasma equilibrium solver at the basis of this tool exploits a convolutional physics-informed neural operator, which solves the plasma equilibrium problem satisfying the Grad--Shafranov Equation by including a physics-informed term in the loss function. To constrain the equilibrium and achieve a better reconstruction, especially in the core region of the plasma, PlaNet uses also non-magnetic measures, such as the pressure profile or the poloidal current profile. PlaNet has been trained and validated on a dataset of 81986 synthetic equilibria of an ITER-like device, showing to be an effective tool for fast and accurate equilibrium ad separatrix reconstruction.},
+  langid = {english},
+  file = {C:\Users\ashould\Zotero\storage\I8HYW7QN\Bonotto - 2024 - Reconstruction of plasma equilibrium and separatrix using convolutional physics-informed neural oper.pdf}
+}
+
+@article{autodiff,
+author = {Baydin, At\i{}l\i{}m G\"{u}nes and Pearlmutter, Barak A. and Radul, Alexey Andreyevich and Siskind, Jeffrey Mark},
+title = {Automatic differentiation in machine learning: a survey},
+year = {2017},
+issue_date = {January 2017},
+publisher = {JMLR.org},
+volume = {18},
+number = {1},
+issn = {1532-4435},
+abstract = {Derivatives, mostly in the form of gradients and Hessians, are ubiquitous in machine learning. Automatic differentiation (AD), also called algorithmic differentiation or simply "auto-diff", is a family of techniques similar to but more general than backpropagation for efficiently and accurately evaluating derivatives of numeric functions expressed as computer programs. AD is a small but established field with applications in areas including computational uid dynamics, atmospheric sciences, and engineering design optimization. Until very recently, the fields of machine learning and AD have largely been unaware of each other and, in some cases, have independently discovered each other's results. Despite its relevance, general-purpose AD has been missing from the machine learning toolbox, a situation slowly changing with its ongoing adoption under the names "dynamic computational graphs" and "differentiable programming". We survey the intersection of AD and machine learning, cover applications where AD has direct relevance, and address the main implementation techniques. By precisely defining the main differentiation techniques and their interrelationships, we aim to bring clarity to the usage of the terms "autodiff", "automatic differentiation", and "symbolic differentiation" as these are encountered more and more in machine learning settings.},
+journal = {J. Mach. Learn. Res.},
+month = jan,
+pages = {5595–5637},
+numpages = {43},
+keywords = {backpropagation, differentiable programming}
+}
+@article{hardbdry,
+  title = {A {{Wachspress-based}} Transfinite Formulation for Exactly Enforcing {{Dirichlet}} Boundary Conditions on Convex Polygonal Domains in Physics-Informed Neural Networks},
+  author = {Sukumar, N. and Roy, Ritwick},
+  year = 2026,
+  month = may,
+  journal = {Computational Mechanics},
+  issn = {1432-0924},
+  doi = {10.1007/s00466-026-02789-4},
+  abstract = {In this paper, we present a Wachspress-based transfinite formulation on convex polygonal domains for exact enforcement of Dirichlet boundary conditions in physics-informed neural networks. This approach leverages prior advances in geometric design such as blending functions and transfinite interpolation over convex domains. For prescribed Dirichlet boundary function \$\$\textbackslash mathcal \textbraceleft B\textbraceright\$\$, the transfinite interpolant of \$\$\textbackslash mathcal \textbraceleft B\textbraceright\$\$, \$\$g: \textbackslash bar\textbraceleft P\textbraceright{} \textbackslash rightarrow C\textasciicircum 0(\textbackslash bar\textbraceleft P\textbraceright )\$\$, lifts functions from the boundary of a two-dimensional polygonal domain to its interior. The transfinite trial function is expressed as the difference between the neural network's output and the extension of its boundary restriction into the interior of the domain, with g added to it. This ensures kinematic admissibility of the trial function in the deep Ritz method. Wachspress coordinates for an n-gon are used in the transfinite formula, which generalizes bilinear Coons transfinite interpolation on rectangles to convex polygons. Since Wachspress coordinates are smooth, the neural network trial function has a bounded Laplacian, thereby overcoming a limitation in a previous contribution where approximate distance functions were used to exactly enforce Dirichlet boundary conditions. For a point \$\$\textbackslash varvec\textbraceleft x\textbraceright\textbackslash in \textbackslash bar\textbraceleft P\textbraceright\$\$, Wachspress coordinates \$\$\textbackslash varvec\textbraceleft\textbackslash lambda \textbraceright : \textbackslash bar\textbraceleft P\textbraceright{} \textbackslash rightarrow [0,1]\textasciicircum n\$\$serve as a geometric feature map for the neural network: \$\$\textbackslash varvec\textbraceleft\textbackslash lambda \textbraceright\$\$encodes the boundary edges of the polygonal domain. This offers a framework for solving problems on parametrized convex geometries using neural networks. The accuracy of physics-informed neural networks is successfully assessed on forward problems (linear and nonlinear), an inverse heat conduction problem, and a parametrized geometric Poisson boundary-value problem.}
+}
+
+@inproceedings{FFM,
+author = {Tancik, Matthew and Srinivasan, Pratul P. and Mildenhall, Ben and Fridovich-Keil, Sara and Raghavan, Nithin and Singhal, Utkarsh and Ramamoorthi, Ravi and Barron, Jonathan T. and Ng, Ren},
+title = {Fourier features let networks learn high frequency functions in low dimensional domains},
+year = {2020},
+isbn = {9781713829546},
+publisher = {Curran Associates Inc.},
+address = {Red Hook, NY, USA},
+abstract = {We show that passing input points through a simple Fourier feature mapping enables a multilayer perceptron (MLP) to learn high-frequency functions in low-dimensional problem domains. These results shed light on recent advances in computer vision and graphics that achieve state-of-the-art results by using MLPs to represent complex 3D objects and scenes. Using tools from the neural tangent kernel (NTK) literature, we show that a standard MLP has impractically slow convergence to high frequency signal components. To overcome this spectral bias, we use a Fourier feature mapping to transform the effective NTK into a stationary kernel with a tunable bandwidth. We suggest an approach for selecting problem-specific Fourier features that greatly improves the performance of MLPs for low-dimensional regression tasks relevant to the computer vision and graphics communities.},
+booktitle = {Proceedings of the 34th International Conference on Neural Information Processing Systems},
+articleno = {632},
+numpages = {11},
+location = {Vancouver, BC, Canada},
+series = {NIPS '20}
+}
+
+@inproceedings{activationsine,
+author = {Sitzmann, Vincent and Martel, Julien N. P. and Bergman, Alexander W. and Lindell, David B. and Wetzstein, Gordon},
+title = {Implicit neural representations with periodic activation functions},
+year = {2020},
+isbn = {9781713829546},
+publisher = {Curran Associates Inc.},
+address = {Red Hook, NY, USA},
+abstract = {Implicitly defined, continuous, differentiable signal representations parameterized by neural networks have emerged as a powerful paradigm, offering many possible benefits over conventional representations. However, current network architectures for such implicit neural representations are incapable of modeling signals with fine detail. They also fail to accurately model spatial and temporal derivatives, which is necessary to represent signals defined implicitly by differential equations. We propose to leverage periodic activation functions for implicit neural representations and demonstrate that these networks, dubbed sinusoidal representation networks or SIRENs, are ideally suited for representing complex natural signals and their derivatives. We analyze SIREN activation statistics to propose a principled initialization scheme and demonstrate the representation of images, wavefields, video, sound, three-dimensional shapes, and their derivatives. Further, we show how SIRENs can be leveraged to solve challenging boundary value problems, such as particular Eikonal equations (yielding signed distance functions), the Poisson equation, and the Helmholtz and wave equations. Lastly, we combine SIRENs with hypernetworks to learn priors over the space of SIREN functions. Please see the project website for a video overview of the proposed method and all applications.},
+booktitle = {Proceedings of the 34th International Conference on Neural Information Processing Systems},
+articleno = {626},
+numpages = {12},
+location = {Vancouver, BC, Canada},
+series = {NIPS '20}
+}
+
+@article{Solovev,
+  title = {Analytical Tokamak Equilibrium for Shaped Plasmas},
+  author = {Zheng, S. B. and Wootton, A. J. and Solano, Emilia R.},
+  year = 1996,
+  journal = {Physics of Plasmas},
+  doi = {10.1063/1.871772},
+  urldate = {2026-06-12},
+  file = {C:\Users\ashould\Zotero\storage\LY3M6K6A\Zheng et al. - 1996 - Analytical tokamak equilibrium for shaped plasmas.pdf}
+}
+@article{propagation,
+title={ProPINN: Demystifying Propagation Failures in Physics Informed Neural Networks},
+author={Anonymous},
+journal={Submitted to Transactions on Machine Learning Research},
+year={2026},
+url={https://openreview.net/forum?id=Wy54lrFd46},
+note={Under review}
+}
+@inproceedings{R3,
+author = {Daw, Arka and Bu, Jie and Wang, Sifan and Perdikaris, Paris and Karpatne, Anuj},
+title = {Mitigating propagation failures in physics-informed neural networks using retain-resample-release (r3) sampling},
+year = {2023},
+publisher = {JMLR.org},
+abstract = {Despite the success of physics-informed neural networks (PINNs) in approximating partial differential equations (PDEs), PINNs can sometimes fail to converge to the correct solution in problems involving complicated PDEs. This is reflected in several recent studies on characterizing the "failure modes" of PINNs, although a thorough understanding of the connection between PINN failure modes and sampling strategies is missing. In this paper, we provide a novel perspective of failure modes of PINNs by hypothesizing that training PINNs relies on successful "propagation" of solution from initial and/or boundary condition points to interior points. We show that PINNs with poor sampling strategies can get stuck at trivial solutions if there are propagation failures, characterized by highly imbalanced PDE residual fields. To mitigate propagation failures, we propose a novel Retain-Resample-Release sampling (R3) algorithm that can incrementally accumulate collocation points in regions of high PDE residuals with little to no computational overhead. We provide an extension of R3 sampling to respect the principle of causality while solving timedependent PDEs. We theoretically analyze the behavior of R3 sampling and empirically demonstrate its efficacy and efficiency in comparison with baselines on a variety of PDE problems.},
+booktitle = {Proceedings of the 40th International Conference on Machine Learning},
+articleno = {288},
+numpages = {39},
+location = {Honolulu, Hawaii, USA},
+series = {ICML'23}
+}
