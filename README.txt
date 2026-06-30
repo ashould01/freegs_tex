@@ -2,10 +2,10 @@
 
 Writing : 
 
-1. Related Work -- More reference for the NO part and write combination part
-2. Introduction 
-3. Abstract
-4. Read and modify the paper (Due : Tuesday)
+1. Related Work -- More reference for the NO part and write combination part (7/1)
+2. Introduction (7/1)
+3. Abstract (7/1)
+4. Read and modify the paper (Due : Tuesday) ...
 5. Appendix
 6. Make model structure picture 
 7. Citation reordering 
