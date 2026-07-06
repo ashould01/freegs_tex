@@ -1,9 +1,4 @@
-\begin{filecontents*}{example.eps}
-%!PS-Adobe-3.0 EPSF-3.0
-%%BoundingBox: 19 19 221 221
-%%CreationDate: Mon Sep 29 1997
-%%Creator: programmed by hand (JK)
-%%EndComments
+\begin{filecontents*}{main.eps}
 gsave
 newpath
   20 20 moveto
@@ -18,16 +13,9 @@ grestore
 stroke
 grestore
 \end{filecontents*}
-%
 \RequirePackage{fix-cm}
-%
-% \documentclass{svjour3}                     % onecolumn (standard format)
-% \documentclass[smallcondensed]{svjour3}     % onecolumn (ditto)
-% \documentclass[smallextended]{svjour3}       % onecolumn (second format)
 \documentclass[twocolumn]{svjour3}          % twocolumn
-%
-\smartqed  % flush right qed marks, e.g. at end of proof
-%
+\smartqed  
 \usepackage{graphicx}
 \usepackage{multirow}
 \usepackage{adjustbox}
@@ -50,7 +38,7 @@ grestore
 % \newcommand{}{}
 %
 % Insert the name of "your journal" with
-% \journalname{myjournal}
+\journalname{myjournal}
 %
 
 \newcommand{\tit}[1]{\textit{#1}}
@@ -70,14 +58,21 @@ grestore
 
 %\titlerunning{Short form of title}        % if too long for running head
 
-\author{Hyojun An \and Second Author \and Third Author \and Fourth Author}
+\author{Hyojun An \and Second Author \and Third Author \and Jooyoung Hahn}
 
 %\authorrunning{Short form of author list} % if too long for running head
 
 \institute{
-  Hyojun An \at 1, Gwanak-ro, Gwanak-gu, Seoul, Republic of Korea \\
-  Tel.: +82) 10-9494-5745 \\ \email{ahn40200393@snu.ac.kr} \and
-  S. Author \at second address
+  Hyojun An
+  \at Department of Mathematical Science, Seoul National University, \\
+  1, Gwanak-ro, Gwanak-gu, Seoul, Republic of Korea \\
+  S. Author \at second address 
+  \and
+  T. Author \at third address
+  \and
+  Jououng Hahn 
+  \at Trojanova 339/13 120 00 Prague, Czech Republic \\
+  \email{jooyoung.hahn@fjfi.cvut.cz}
 }
 
 \date{Received: date / Accepted: date}
@@ -93,10 +88,10 @@ grestore
   This study introduces a physics-informed neural operator framework 
   for solving the free-boundary Grad-Shafranov equation, 
   a nonlinear elliptic partial differential equation (PDE)
-  whose boundary condition is determined by the solution itself.
+  whose source term and boundary condition are determined by the solution itself.
   First, we decompose the Grad-Shafranov equation into two sub-problems
   and train two neural operators independently, 
-  using physics-informed loss functions without paired solution labels.
+  using physics-informed loss functions without solution labels.
   Next, we combine their outputs to obtain the full solution of the 
   one-step Grad-Shafranov equation.
   This model is then integrated into an existing iterative Grad--Shafranov solver,
@@ -104,23 +99,24 @@ grestore
   Validation on the Solov'ev equilibrium shows that the proposed method can provide
   accurate poloidal flux compared to the analytical solution,
   and the validation on MAST-U tokamak equilibrium shows that
-  the proposed method can provide accurate poloidal flux for both diverted and limited plasma configurations, and reproduce physically relevant equilibrium quantities.
-
+  the proposed method can provide accurate poloidal flux 
+  for both diverted and limited plasma configurations,
+  and reproduce physically relevant equilibrium quantities.
 \keywords{Plasma equilibrium \and Physics-informed Neural Operators \and Grad-Shafranov equation}
-% \PACS{PACS code1 \and PACS code2 \and more}
-\subclass{MSC code1 \and MSC code2 \and more}
+\subclass{76W05 \and 68T07 \and 65J15}
 \end{abstract}
 
 \section{Introduction}\label{intro}
 Accurate knowledge of the plasma equilibrium is essential for 
-designing tokamak operating scenarios, and controlling the plasma shape in real time.
+designing tokamak operating scenarios, and controlling the plasma shape in real time. 
+\cite{BLUM,Lao_1985}
 From a combination of physical models, machine descriptions, 
 and diagnostic measurements, plasma equilibrium reconstruction is done
 by estimating the magnetohydrodynamic (MHD) equilibrium state.
 In practical tokamak operations, the reconstructed equilibrium provides quantities 
 such as the poloidal flux, plasma boundary, magnetic axis, X-points, and current density profile.
 These quantities are used not only for offline analysis but also for controlling tasks 
-such as plasma shape control and scenario optimization.
+such as plasma shape control and scenario optimization. \cite{control1,control2}
 Since the equilibrium quantities may need be updated repeatedly during real-time optimization,
 such reconstruction must be performed accurately and quickly.
 
@@ -132,46 +128,40 @@ depend on the poloidal flux function, and as a result, the source term and the b
 must be updated consistently during the solution process.
 
 Classical numerical solvers remain the standard tools for tokamak equilibrium 
-reconstruction and simulation, including finite-difference, finite-element, spectral methods.
-Also, to improve the reality of the simulation, 
-profile parametrizations and diagnostic constraints are needed to ensure physical consistency.
-Equilibrium reconstruction codes such as EFIT and related real-time reconstruction methods 
+reconstruction and simulation, including finite-difference \cite{jeon}, 
+finite-element \cite{fem}, spectral methods \cite{spectral1}.
+Also, profile parametrizations and diagnostic constraints are needed 
+to ensure physical consistency. \cite{jeon}
+Equilibrium reconstruction codes such as EFIT \cite{Lao_1985} and related 
+real-time reconstruction methods \cite{RT-EFIT,BLUM,LIUQE}
 have been widely used in tokamak experiments.
 In these solvers, the nonlinear Grad--Shafranov problem is typically solved iteratively.
 Given a previous flux estimate, the plasma boundary and current density are updated, 
 and a one-step elliptic Grad--Shafranov problem is solved to obtain the next flux iterate.
 This repeated one-step solve is a central computational component of the overall equilibrium algorithm.
+\cite{validation}
 
-Conventional Grad--Shafranov solvers face several computational and modeling challenges.
-First, the free-boundary problem is nonlinear and may not be a contraction mapping, 
-so convergence of a simple fixed-point iteration is not guaranteed in general. 
-Second, the boundary calculation couples the interior flux distribution 
-with the surrounding tokamak geometry and external currents, 
-which complicates the construction of explicit Jacobians. 
-Third, real-time reconstruction and large-scale parametric studies require many 
+Meanwhile, real-time reconstruction and large-scale parametric studies require many 
 equilibrium solves under varying plasma parameters, coil currents, and boundary configurations.
 These considerations motivate the development of fast surrogate models 
 that can accelerate repeated equilibrium computation while retaining physical consistency.
+In particular, neural networks have recently emerged as 
+promising tools for scientific computing, 
+and they have been applied to various problems involving 
 
-Neural networks have recently emerged as promising tools for 
-scientific computing. 
-In particular, physics-informed neural networks incorporate 
-differential-equation residuals and boundary conditions into the training objective, 
-allowing neural models to approximate PDE solutions with reduced dependence on labeled data.
-Neural operators extend this idea from learning individual solutions 
-to learning mappings between function spaces. 
-Architectures such as DeepONet and Fourier neural operators have shown that 
-solution operators of parametric PDEs can be approximated and evaluated efficiently after training.
-Physics-informed neural operators further incorporate governing equations 
-into the operator-learning framework, making them attractive for problems 
-where generating high-fidelity labeled solution data is expensive.
-
-However, applying neural operators to the free-boundary Grad--Shafranov problem 
-is not straightforward. 
-A direct neural prediction of the final equilibrium may be deficient, 
+For example, van de Plassche et al. \cite{turbulent} built a neural-network surrogate model 
+for turbulent flux prediction in tokamak plasmas, and they showed that the neural surrogate 
+can accelerate the computation of turbulent fluxes in integrated tokamak simulations.
+In the context of the plasma equilibrium reconstruction, Joung et al. \cite{gsdeepnet}
+proposed GS-DeepNet, a plasma flux predictor with
+a solution-free training approach with physics informed loss functions, 
+and they validated with the real KSTAR simulation and showed that the trained model 
+can predict the plasma shape and physical parameters from the magnetic measurements.
+However, a direct neural prediction of the final equilibrium may be deficient
 because it does not guarantee the satisfaction of the Grad--Shafranov equation,
 and it may not generalize reliably when the boundary configuration 
-or current-density profile changes. 
+or current-density profile is out of the training distribution. 
+
 In this work, we propose FreeGSNO, a physics-informed neural-operator framework 
 for solving the free-boundary Grad--Shafranov equation. 
 The key idea is not to replace the entire equilibrium solver by a one-shot predictor, 
@@ -190,12 +180,13 @@ as key-value information and predicts the corresponding harmonic contribution in
 
 The learned neural operator can be inserted into the existing iteration methods 
 for the Grad--Shafranov equation. 
-In this work, we integrate the proposed neural operator into a Python-based
-FreeGS and FreeGSNKE solver, which follows a fixed-point and Jacobian-free Newton--Krylov workflow,
+We integrate the proposed neural operator into a Python-based
+FreeGS and FreeGSNKE solver after training, 
+which follows a fixed-point and Jacobian-free Newton--Krylov workflow,
 and we check that the proposed method remains compatible with conventional free-boundary
 equilibrium algorithms. 
 In this sense, FreeGSNO is a solver-in-the-loop neural surrogate 
-rather than a purely data-driven equilibrium predictor.
+rather than a purely (data-driven) equilibrium predictor.
 
 We evaluate FreeGSNO in two settings. The first is a Solov'ev equilibrium problem, 
 where an analytic solution is available and the accuracy of the neural operators 
@@ -206,14 +197,39 @@ compared with the reference numerical solver.
 The results demonstrate that the proposed method can approximate the poloidal flux and 
 reproduce physically important equilibrium quantities such as the magnetic axis, 
 X-point, and plasma boundary. 
+% time related ---
 These experiments indicate that physics-informed neural operators can provide 
 a promising route toward fast and physically consistent Grad--Shafranov equilibrium computation.
 
-\section{Related Work}
+Our contribution is summarized as follows:
+\begin{itemize}
+  \item We propose a physics-informed neural operator framework for solving the
+  free-boundary Grad--Shafranov equation, and we train the neural operators 
+  without solution labels, using only physics-informed loss functions,
+  \item We integrate it with an existing iterative Grad--Shafranov solver,
+  to investigate the compatibility of the proposed method
+  with conventional free-boundary equilibrium algorithms.
+  % time related ---
+  \item We validate the proposed method on the Solov'ev equilibrium and MAST-U
+  free-boundary equilibrium, and we show that the proposed method can provide
+  accurate poloidal flux and reproduce physically relevant equilibrium quantities.
+\end{itemize}
+
+This paper is constructed as follows: Section~\ref{sec:2} summarizes related work 
+for the Grad--Shafranov equation and physics-informed neural operators.
+Section~\ref{sec:3} introduces the Grad--Shafranov equation and its numerical solution methods,
+and describes the physics-informed neural operator architectures used in this work.
+Section~\ref{sec:4} describes the proposed FreeGSNO framework, including the decomposition of the one-step Grad--Shafranov problem, the training of the neural operators, 
+and the integration with the existing solver.
+Numerial results containing the Solov'ev equilibrium and free-boundary MAST-U equilibrium are 
+in Section~\ref{sec:5}.
+We conclude with a summary and discussion of future work in Section~\ref{sec:6}.
+
+\section{Related Work} \label{sec:2}
 
 \subsection{Numerical Algorithms for  the Grad-Shafranov Equation and Plasma Equilibrium}
 
-A large body of work \cite{Lao_1985,BLUM,RT-EFIT,EFIT++,LIUQE,HAN2021,SPECTRAL,adaptiveGradShafranov,jeon,freegsnke} 
+A large body of work \cite{Lao_1985,BLUM,RT-EFIT,EFIT++,LIUQE,HAN2021,SPECTRAL2,adaptiveGradShafranov,jeon,freegsnke} 
 has addressed the numerical solution of the Grad-Shafranov equation for various tokamak devices,
 using numerical methods such as finite difference, finite element, and spectral methods.
 Since the source term and the plasma boundary depend on the flux itself, 
@@ -298,38 +314,26 @@ accuracy of the model.
 They validated their model with the real data from KSTAR \cite{KSTAR} tokamak.
 
 Meanwhile, several efforts have also been made to accurately 
-obtain the plasma equilibrium reconstruction 
+solve the plasma equilibrium reconstruction 
 with neural networks, to serve as a simulation tool.
 For example, \cite{JangPINN} proposed a physics-informed neural network to predict
 the plasma equilibrium for fixed boundary problems with varying boundary shapes,
 and compared to the analytical solution obtained by assuming the Solov'ev profile
 \cite{Solovev}, to show the possibility of neural networks as a solver for the Grad-Shafranov equation.
-To more accurately reconstruct the plasma equilibrium, \cite{multistagePINN} proposed a 
+Furthermore, to more accurately reconstruct the plasma equilibrium,
+\cite{multistagePINN} proposed a 
 multi-stage PINN, and they obtained the plasma flux function with the absolute error
 between the analytic solution and the predicted solution below $10^{-7}$ for the Solov'ev profile.
 However, these works are limited to the fixed-boundary problem.
 We propose a solution label-free physics-informed neural operator framework to 
 predict the plasma equilibrium with a free-boundary condition,
-and we integrate it with a numerical solver, obtaining accurate plasma poloidal flux
-and generalization ability.
+and we integrate it with a iterative numerical solver and 
+iterates until convergence, to obtain an 
+accurate plasma poloidal flux and generalization ability.
 
-\begin{figure*}\label{fig:tokamak}
-  \centering
-  \includegraphics[width=0.6\textwidth]{img/tokamak_real.jpg}
-  \includegraphics[width=0.22\textwidth]{img/tokamak.png}
-  \caption{
-    Left: Internal view of the Joint European Torus (JET) vessel with a metallic wall.
-    Image source: EUROfusion / Wikimedia Commons, licensed under CC BY 4.0.
-    Right: Modeling toroidal slice of the MAST-U tokamak using FreeGSNKE.
-    The blue rectangle is the active coil and solenoid region, the black polygon is 
-    the limiter-facing surface of the tokamak, and the grey polygon is the tokamak structure.
-    See Section~\ref{sec:5.2} for a detailed description of the above terms related to the 
-    tokamak structure.
-    }
-\end{figure*}
+% Position ---
 
-
-\section{Preliminaries}
+\section{Preliminaries}\label{sec:3}
 
 In this section, we introduce the free-boundary Grad-Shafranov equation and describe the
 neural operator architectures used in this work.
@@ -342,23 +346,24 @@ the plasma is axisymmetric.
 Let $(R, \phi, Z)$ be a cylindrical coordinate system with $R > 0$.
 We define $\Omega = (0, R_{max})\times (-Z_{max}, Z_{max})$ as a 2D computational domain 
 in the coordinates $(R, Z)$. We also define the plasma domain $\Omega_p\subset \Omega$ 
-as the region occupied by the plasma.
-The corresponding plasma boundary is denoted by $\partial \Omega_p$.
+as the region occupied by the plasma in tokamak.
+The corresponding plasma boundary is denoted by $\partial \Omega_p$. 
+See section \ref{sec:2.1.2} for a detailed description of the plasma boundary.
 In many cases, determining or controlling the plasma domain is a central issue
 in plasma equilibrium problems.
-% We will discuss more about the plasma boundary in the Section~\ref{sec:2.1.2} and 
-% Figure~\ref{fig:boundary}.
 
 The Grad-Shafranov equation reads
 \begin{align}\label{eq:1}
   \Delta^* \psi(R, Z) = -\mu_0 R J_\phi(R, Z; \psi), \quad (R, Z) \in \Omega,
 \end{align}
 where $\psi = \psi(R, Z)$ is the axisymmetric poloidal flux function,
-$\mu_0$ is the vacuum permeability, and $J_\phi$ is the toroidal current density.
+$\mu_0 = 4\pi \times 10^{-7} \mathrm{N/A^2}$ is the vacuum permeability, 
+and $J_\phi$ is the toroidal current density.
 The operator $\Delta^*$ is an elliptic operator with cylindrical coordinates, defined by
 $\Delta^* = \frac{\partial^2}{\partial R^2} - \frac{1}{R}\frac{\partial}{\partial R} + 
 \frac{\partial^2}{\partial Z^2}$.
-To close the equation, we have to determine the toroidal current density $J_\phi$ and the boundary condition.
+To close the equation, we have to determine the toroidal current density $J_\phi$ 
+and the computational boundary value for the boundary condition.
 
 \subsubsection{Modeling of the toroidal current density $J_\phi$}
 
@@ -366,12 +371,16 @@ The toroidal current density $J_\phi$ depends not only on nonlinear functions of
 on the plasma boundary, but also on external environments, such as currents in the active coils.
 To be more precise, $J_\phi$ can be decomposed into two parts, 
 \begin{align}
-  J_\phi(R, Z; \psi) = J_{\text{p}, \phi}(R, Z; \psi) + J_{\text{m}}(R, Z),
+  J_\phi(R, Z; \psi) = J_{\text{p}, \phi}(R, Z; \psi) + J_{\text{m}, \phi}(R, Z),
 \end{align}
 where $J_{\text{p}, \phi}$ is the plasma current density and 
-$J_{\te{m}}$ is the current density due to the external coils. 
-For simplicity, we treat $J_\te{m}$ as fixed; in general, however,
-$J_\te{m}$ is a main control variable for the plasma equilibrium problems.
+$J_{\text{m}, \phi}$ is the current density due to the external coils. 
+In this work, we assume that $J_{\text{m}, \phi}$ is known and fixed,
+which is called a static forward problem. 
+However, in general, $J_{\text{m}, \phi}$ is a main control variable 
+for the plasma equilibrium problems, and this is called a static inverse problem.
+We remark that the proposed method can be extended to the static inverse problem,
+and we leave it as a future work.
 
 The plasma current density $J_{\text{p}, \phi}$ is composed of the pressure $p = p(\psi)$ and the 
 toroidal magnetic field function $F = F(\psi)$;
@@ -384,82 +393,60 @@ toroidal magnetic field function $F = F(\psi)$;
   0 & (R, Z) \in \Omega \setminus \Omega_p
 \end{cases}, \end{align}
 where $p'(\psi)$ and $F'(\psi)$ are the derivatives of $p$ and $F$ with respect to $\psi$, respectively. 
-Thus, the plasma current density is affected by the plasma boundary. 
+We remark that not only the physical profiles but also the plasma boundaries 
+affect the plasma current density.
 In the next subsection, we will discuss how to determine the plasma boundary.
 
 Several models have been proposed for $p'(\psi)$ and $F'(\psi)$. 
-Here, we adopt the Lao-type profile parametrization \cite{Lao_1985} for the plasma current density.
-\begin{align*}
-  J_{\phi, \rm{pl}}(R, Z; \psi) =
-  \lambda &\left[\beta_0 \frac{R}{R_{\rm{geo}}}\tilde{j}_p(\psi, \psi_a, \psi_b) + \right. \\
-  & \ \left. (1-\beta_0) \frac{R_{\rm{geo}}}{R}\tilde{j}_F(\psi, \psi_a, \psi_b)\right]
-  \bf{1}_{\Omega_{\rm{p}}}(R, Z),
-\end{align*}
+Here, we adopt the profile parametrization as in \cite{Luxon_1982} for the plasma current density,
+\begin{align}\label{eq:currentdensity}
+  \begin{aligned}
+  J_{\te{p}, \phi}(R, Z; \psi) = \begin{cases}
+  \lambda \left[\beta_0 \frac{R}{R_{\rm{geo}}}\tilde{j}_p(\psi, \psi_{\te{o}}, \psi_{\te{x}}) + \right. & \\
+  \ \left. (1-\beta_0) \frac{R_{\rm{geo}}}{R}\tilde{j}_F(\psi, \psi_{\te{o}}, \psi_{\te{x}})\right] 
+  & (R, Z) \in \Omega_{\rm{p}}, \\
+  0 & (R, Z) \in \Omega \setminus \Omega_{\rm{p}}
+  \end{cases}
+  \end{aligned}
+\end{align}
 where $R_{\te{geo}}$ is the major radius of the plasma;
-$\lambda$ and $\beta_0$ are the normalization constants, with details of the 
-normalization given in Appendix~\ref{sec:normalization}.
-Here $\tilde{j}_p$ and $\tilde{j}_F$ are the normalized pressure and 
-toroidal magnetic field profiles: 
-\begin{align*}
-  \tilde{j}_p(\psi, \psi_a, \psi_b) &= (1 - \psi_s^{\alpha_m})^{\alpha_n} \\
-  \tilde{j}_F(\psi, \psi_a, \psi_b) &= (1 - \psi_s^{\beta_m})^{\beta_n} \\
-  \psi_s &= \frac{\psi - \psi_a}{\psi_b - \psi_a}, \\
-\end{align*}
-The parameters $\alpha_m, \alpha_n, \beta_m, \beta_n$ determine  
-the shapes of the pressure and toroidal field profiles,
-and the quantities $\psi_a$ and $\psi_b$ are the poloidal-flux values
-at the plasma magnetic axis and at the plasma boundary, respectively.
-We discuss these quantities further in the next subsection.
-
-For later use, we decompose $\psi = \psi_\text{p} + \psi_\text{m}$,
-taking advantage of the linearity of  the left-hand side of the Grad-Shafranov equation,
-where $\psi_\te{p}$ satisfies
-\[ \Delta^* \psi_\te{p}(R, Z) = -\mu_0 R J_{\text{p}, \phi}(R, Z; \psi), \]
-and $\psi_\te{m}$ satisfies
-\[ \Delta^* \psi_\te{m}(R, Z) = -\mu_0 R J_{\text{m}}(R, Z). \]
-Note that $J_{\text{p}, \phi}$ is a function of $\psi$, not $\psi_\te{p}$.
+$\lambda$, $\beta_0$ are the normalization constants, 
+and $\tilde{j}_p$, $\tilde{j}_F$ are the normalized pressure,
+toroidal magnetic field profiles, respectively.
 
 Given $J_\phi$, we can obtain the value of $\psi$ at the computational boundary $\partial \Omega$.
-Let $\psi_{\te{bdry}}: \partial \Omega \to \bb{R}$ denote the boundary value of $\psi$ on $\partial \Omega$.
-
+Let $\overline{\psi}: \partial \Omega \to \bb{R}$ denote the boundary value of $\psi$ on $\partial \Omega$.
+Then it is given by the Green's function representation as below:
 \begin{align}\label{eq:4}
-  \psi_{\te{bdry}}(R, Z) = \iint_\Omega G(R, Z; R', Z') J_\phi(R', Z'; \psi) dR' dZ',
+  \overline{\psi}(R, Z) = \iint_\Omega G(R, Z; R', Z') J_\phi(R', Z'; \psi) dR' dZ',
 \end{align} 
 where $(R, Z) \in \partial \Omega$ and $G$ is the Green's function for the operator $\Delta^*$;
-\begin{align*} G(R, Z; R', Z') &= \frac{\mu_0}{2 \pi} \frac{\sqrt{R R'}}{k} \left[
-  (2 - k^2) K(k) - 2E(k) 
-\right], \\ k^2 &= \frac{4 R R'}{(R + R')^2 + (Z - Z')^2} \end{align*}
-and $K$ and $E$ are the complete elliptic integrals of the first and second kind, respectively.
+We give the full definition of each term for this subsection in Appendix~\ref{sec:normalization}.
 
 \subsubsection{Determination of the plasma boundary} \label{sec:2.1.2}
 
 In the free-boundary problem, the plasma boundary is not known a priori, and
-hence it is determined by the solution $\psi$ itself.
+it is determined by the solution $\psi$ itself.
 More precisely, given the plasma flux $\psi$ and the geometry of the tokamak,
 the plasma boundary value $\psi_b$ is determined by the following procedure.
 Assume the total plasma current 
 \[ I_p = \int_{\Omega_p} J_{\text{p}, \phi}(R, Z; \psi) \, dR \, dZ > 0. \]
-Then the poloidal flux $\psi$ typically attains a minimum at the plasma magnetic axis, and increases toward the plasma boundary.
+Then the poloidal flux $\psi$ typically attains a maximum at the plasma magnetic axis,
+and decreases toward the plasma boundary.
 If a saddle point of $\psi$, called the X-point, exists inside the tokamak structure, 
 the plasma boundary value is determined at the value of $\psi$ at the X-point.  
 In this case, we say that the plasma is diverted. 
-The minimum value of $\psi$ is attained at the plasma magnetic axis, denoted by $\psi_a$
-as mentioned above.
-Therefore, we identify candidate critical points where $|\nabla \psi|$ is close to zero,
-and we then compute the Hessian matrix of $\psi$ at each candidate point to classify it as 
-either the magnetic axis or the X-point.
-Then the value of $\psi$ at the X-point is the plasma boundary value $\psi_b$, and 
-the value of $\psi$ at the magnetic axis is $\psi_a$. 
+The maximum value of $\psi$ is attained at the plasma magnetic axis, denoted by $\psi_{\te{o}}$.
 For $I_p < 0$, the roles of local minimum and maximum are reversed; 
-in particular, the plasma magnetic axis corresponds to the local maximum of $\psi$. 
+in particular, the plasma magnetic axis corresponds to the minimum of $\psi$. 
 
 On the other hand, because the domain $\Omega$ is bounded, in some cases 
 all saddle points of $\psi$ may lie outside the tokamak structure, and hence the plasma boundary is
 determined by the limiter, which is a material structure of the tokamak.
-In this case, the plasma boundary value $\psi_b$ is determined by the largest/smallest value of $\psi$ on the limiter-facing surface when $I_p > 0$/$I_p < 0$. In this case, the plasma is limited.
+In this case, the plasma boundary value $\psi_{\te{x}}$ is determined by the largest/smallest value of $\psi$ on the limiter-facing surface when $I_p > 0$/$I_p < 0$. In this case, the plasma is limited.
 
-Finally, the plasma boundary is the level set of $\psi_b$;
-\[ \partial \Omega_p = \{(R, Z) \in \Omega: \psi(R, Z) = \psi_b\}. \]
+Finally, the plasma boundary is the level set of $\psi_{\te{x}}$;
+\[ \partial \Omega_p = \{(R, Z) \in \Omega: \psi(R, Z) = \psi_{\te{x}}\}. \]
 See Figure~\ref{fig:boundary} for the visualization of the plasma boundary.
 
 \begin{figure}[htbp]
@@ -478,7 +465,7 @@ See Figure~\ref{fig:boundary} for the visualization of the plasma boundary.
 \end{figure}
 
 Given the plasma boundary, the plasma current density $J_{\text{p}, \phi}$ 
-and the correspoinding boundary value of $\psi_{\te{bdry}}$ 
+and the correspoinding boundary value of $\overline{\psi}$ 
 are obtained by \eqref{eq:3} and \eqref{eq:4}, respectively.
 
 
@@ -493,31 +480,30 @@ Given this initial guess, suppose that the previous iterate $\psi^{(n-1)}$
 is available for $n \geq 1$.
 Then we first determine the plasma domain $\Omega_p^{(n-1)}$ from $\psi^{(n-1)}$, 
 and we compute the toroidal current density $J_\phi(\cdot ; \psi^{(n-1)})$ 
-on the computational domain $\Omega$ and $\psi_{\te{bdry}}^{(n-1)}$ at $\partial \Omega$ 
+on the computational domain $\Omega$ and $\overline{\psi}^{(n-1)}$ at $\partial \Omega$ 
 with the plasma domain $\Omega_p^{(n-1)}$ and the previous iterate $\psi^{(n-1)}$.
 Because the plasma current density is recomputed from the updated
 current density, note that the newly obtained 
-$\psi_{\te{bdry}}^{(n-1)}$ need not coincide with the $\psi^{(n-1)}$ on the boundary $\partial \Omega$. 
+$\overline{\psi}^{(n-1)}$ need not coincide with the $\psi^{(n-1)}$ on the boundary $\partial \Omega$. 
 Then we can obtain the solution $\psi^{(n)}$ by solving the one-step 
 Grad-Shafranov equation;
 \begin{align}\label{eq:5}
   \left\{
   \begin{aligned}
     \Delta^* \psi^{(n)}(R, Z) &= -\mu_0 R J_\phi(R, Z; \psi^{(n-1)}), \quad (R, Z) \in \Omega, \\
-    \psi^{(n)}(R, Z) &= \psi_{\text{bdry}}^{(n-1)}(R, Z; \psi^{(n-1)}), \quad (R, Z) \in \partial \Omega,
+    \psi^{(n)}(R, Z) &= \overline{\psi}^{(n-1)}(R, Z; \psi^{(n-1)}), \quad (R, Z) \in \partial \Omega,
   \end{aligned}
   \right.
 \end{align}
 and we repeat the above procedure until convergence. 
 For later use, we formulate it in the operator form. 
 Let $\cal{F}$ be the one-step solution operator, defined by
-\[ \cal{F}[\psi^{(n-1)}] = \psi^{(n)}, \]
+\begin{align}\label{eq:defF}
+  \cal{F}[\psi^{(n-1)}] = \psi^{(n)},
+\end{align} 
 where $\psi^{(n)}$ is the solution of the one-step Grad-Shafranov equation \eqref{eq:5} with 
 $J_\phi(\cdot ; \psi^{(n-1)})$ and $\psi_{\text{bdry}}^{(n-1)}$.
 Then its fixed point is the exact solution for the Grad-Shafranov equation.
-% Equivalently, we consider the residual operator $\cal{R}$ defined as 
-% $\cal{R}[\psi] = \psi - \cal{F}[\psi]$, and the solution
-% of the Grad-Shafranov equation is the root of $\cal{R}.$
 
 Several numerical methods can be used to solve the one-step Grad-Shafranov equation.
 Since in most cases the computational domain $\Omega$ is the extended area of the 
@@ -527,33 +513,25 @@ Thus standard finite difference methods with central differences are widely used
 However, in general $\cal{F}$ is not a contraction, and several studies 
 \cite{multisolns2,multsolns} have reported that there are multiple solutions 
 for the Grad-Shafranov equation, and hence the convergence of the above procedure is not guaranteed.
-% For example, with 
 
 Alternatively, when $\psi^{(n)}$ is close to the solution, 
 the Jacobian-free Newton-Krylov method can be used to solve the one-step Grad-Shafranov equation.
 Because the boundary computation for the plasma is included to compute $\cal{F}$,
 it is difficult to compute its Jacobian matrix with respect to $\psi$.
-Meanwhile, the standard Newton Krylov method only requires the matrix-vector product of the Jacobian matrix, not the Jacobian matrix itself.
-Therefore, we approximate the Jacobian matrix $\cal{J}[\psi](\Delta \psi)$ 
+Meanwhile, the standard Newton-Krylov method only requires the matrix-vector product of the Jacobian matrix, not the Jacobian matrix itself.
+Therefore, the Jacobian-free Newton-Krylov method approximates 
+the Jacobian-vector product $\cal{J}[\psi](\Delta \psi)$ 
 by the finite difference method;
 \[ \cal{J}[\psi](\Delta \psi) \approx 
 \frac{\cal{F}[\psi + \epsilon \Delta \psi] - \cal{F}[\psi]}{\epsilon} \]
 for $\epsilon > 0$ a small constant.
-We perform Arnoldi iteration with this formulation to compute the Krylov subspace,
-and solve the least squares problem to obtain the update direction $\Delta \psi$.
-(Details of the Jacobian-free Newton-Krylov method are provided in Appendix~\ref{sec:JFNK}.)
+We serve details of the Jacobian-free Newton-Krylov method are provided in Appendix~\ref{sec:JFNK}.
 
 Our method is designed to serve as a neural surrogate 
-for the numerical solver, to replace the operator $\cal{F}$ so the overall 
-procedure can be accelerated.
-% , as we will describe in the next section.
-In this work, our neural network assisted approach is combined to the 
-FreeGSNKE solver \cite{freegsnke},
-which uses both a finite difference method and a Jacobian-free Newton-Krylov 
-method to solve the one-step Grad-Shafranov equation. 
-
-% 내일 neural operator background & method 채우기
-
+for the numerical solver, to replace the operator $\cal{F}$ 
+both in the fixed-point iteration and in the Jacobian-free Newton-Krylov method.
+Also we compute the time consumption of solving the one-step Grad-Shafranov equation
+with the neural operator, and we show the possibility that the procedure can be accelerated.
 
 \subsection{Physics-Informed Neural Operators}
 
@@ -590,22 +568,23 @@ without access to the corresponding solutions $\{u_i\}_{i=1}^N$.
 The physics-informed loss function can be written as
 \begin{align}\label{eq:7}
   \begin{aligned}
-    L(\theta) &= L_\te{r}(\theta) + L_\te{b}(\theta) \\
-    L_\te{r}(\theta) &= \frac{1}{N}\sum_{i=1}^N \int_\Omega |\cal{L}[\cal{N}_\theta(v_i)](x) - f(x;v_i)|^2 dx, \\
-    L_\te{b}(\theta) &= \frac{1}{N}\sum_{i=1}^N \int_{\partial \Omega} |\cal{B}[\cal{N}_\theta(v_i)](x) - g(x;v_i)|^2 dx.
+    L(\theta) &= L_\te{PDE}(\theta) + L_\te{bdry}(\theta) \\
+    L_\te{PDE}(\theta) &= \frac{1}{N}\sum_{i=1}^N \int_\Omega |\cal{L}[\cal{N}_\theta(v_i)](x) - f(x;v_i)|^2 dx, \\
+    L_\te{bdry}(\theta) &= \frac{1}{N}\sum_{i=1}^N \int_{\partial \Omega} |\cal{B}[\cal{N}_\theta(v_i)](x) - g(x;v_i)|^2 dx.
   \end{aligned}
 \end{align}
+
 In our case, for a given previous iterate $\psi^{(n-1)}\in \cal{X} \subset H^2(\Omega)$, 
 the one-step Grad-Shafranov solution belongs to 
 $\cal{Y}_{\psi^{(n-1)}} = \{ u \in H^2(\Omega) : 
-u|_{\partial \Omega} = \psi_{\te{bdry}}|_{\partial \Omega} \}$,
-where $H^2(\te{int }\Omega)$ denotes the Sobolev space of functions with 
+u|_{\partial \Omega} = \overline{\psi}|_{\partial \Omega} \}$,
+where $H^2(\Omega)$ denotes the Sobolev space of functions with 
 square-integrable second derivatives. 
 Also for $\psi^{(n-1)} \in \cal{X}$,
 \begin{align*}
-  \cal{L} &= \Delta^*, \quad \cal{B}[\psi^{(n-1)}] = \psi^{(n-1)}_{\te{bdry}},  \\
+  \cal{L} &= \Delta^*, \quad \cal{B}[\psi^{(n-1)}] = \overline{\psi}^{(n-1)},  \\
   f(R, Z; \psi^{(n-1)}) &= -\mu_0 R J_\phi (R, Z; \psi^{(n-1)}),  \\
-  g(R, Z; \psi^{(n-1)}) &= \psi_{\te{bdry}}(R, Z; \psi^{(n-1)}).
+  g(R, Z; \psi^{(n-1)}) &= \overline{\psi}(R, Z; \psi^{(n-1)}).
 \end{align*} 
 
 In this work, we use a combination of physics-informed DeepONet 
@@ -640,24 +619,29 @@ We utilize the PI-DeepONet as the one-step Grad-Shafranov solver for $\psi$.
 Transformer \cite{transformer} has become a standard backbone for state-of-the-art models in 
 many research areas, such as natural language processing (NLP) and computer vision.
 Its core structure is the multi-head self-attention mechanism.
-With input sequence $X=[x_1,\ldots,x_n]^\top \in\mathbb{R}^{n\times d}$, 
-positional encoding is added to the input to obtain $H^{(0)}$.
-Next, each layer computes the queries $Q_h=H^{(\ell-1)} W_h^Q$, keys $K_h=H^{(\ell-1)} W_h^K$,
-and values $V_h=H^{(\ell-1)} W_h^V$, for each attention head $h$.
-Here $W_h^Q, W_h^K$, and $W_h^V$ are learnable parameters, and $H^{(\ell-1)}$ is 
-the output of the previous layer.
-Then the scaled dot-product attention follows:
-\[ \te{Attn}_h\left(H^{(\ell-1)}\right)=\te{softmax}\left(Q_hK_h^\top/\sqrt{d_k}\right)V_h, \]
-where $\te{softmax}(x) = \frac{e^x}{\sum_{i=1}^n e^{x_i}}$ and $d_k$ is the dimension of the keys.
-The outputs of multiple heads are concatenated and projected as 
-\[ \mathrm{MHA}(H^{(\ell-1)})=\mathrm{Concat}(\mathrm{Attn}_1,\ldots,\mathrm{Attn}_m)W^O. \]
-Here $W^O$ is a learnable parameter, and $m$ is the number of attention heads.
-Then the layer normalization and feed-forward network are applied to the output of the multi-head attention, 
-to obtain $H^{(\ell)}$ for the next layer.
 
-With this structure in mind, we introduce a physics-informed neural transformer 
-operator (PINTO) \cite{PINTO}, which is a successful transformer-based neural operator architecture.
-Unlike a standard transformer, PINTO takes three inputs:
+% With input sequence $X=[x_1,\ldots,x_n]^\top \in\mathbb{R}^{n\times d}$, 
+% positional encoding is added to the input to obtain $H^{(0)}$.
+% Next, each layer computes the queries $Q_h=H^{(\ell-1)} W_h^Q$, keys $K_h=H^{(\ell-1)} W_h^K$,
+% and values $V_h=H^{(\ell-1)} W_h^V$, for each attention head $h$.
+% Here $W_h^Q, W_h^K$, and $W_h^V$ are learnable parameters, and $H^{(\ell-1)}$ is 
+% the output of the previous layer.
+% Then the scaled dot-product attention follows:
+% \[ \te{Attn}_h\left(H^{(\ell-1)}\right)=\te{softmax}\left(Q_hK_h^\top/\sqrt{d_k}\right)V_h, \]
+% where $\te{softmax}(x) = \frac{e^x}{\sum_{i=1}^n e^{x_i}}$ and $d_k$ is the dimension of the keys.
+% The outputs of multiple heads are concatenated and projected as 
+% \[ \mathrm{MHA}(H^{(\ell-1)})=\mathrm{Concat}(\mathrm{Attn}_1,\ldots,\mathrm{Attn}_m)W^O. \]
+% Here $W^O$ is a learnable parameter, and $m$ is the number of attention heads.
+% Then the layer normalization and feed-forward network are applied to the output of the multi-head attention, 
+% to obtain $H^{(\ell)}$ for the next layer.
+% With this structure in mind, we introduce a physics-informed neural transformer 
+
+Recently, the application of transformation model to neural operators has been widely proposed. 
+\cite{BENO,Transolver}
+We use the physics-informed neural transformer operator (PINTO) 
+\cite{PINTO}, which is a successful transformer-based neural operator architecture.
+
+PINTO takes three inputs:
 \begin{itemize}
   \item first, the query input is the coordinate $x\in \bb{R}^{d\times 1}$ 
   where we want to predict the solution,
@@ -668,7 +652,6 @@ Unlike a standard transformer, PINTO takes three inputs:
   $g_D = [g(x_{b, 1}; v), \cdots, g(x_{b, N}; v)] \in \bb{R}^{1 \times N}$ 
   at those discretization points.
 \end{itemize} 
-
 All inputs are encoded with a fully-connected layer so that they have the same dimension $p$,
 i.e., 
 \begin{align*}
@@ -694,7 +677,6 @@ Finally, a decoder MLP is applied to obtain the scalar output,
 \[ \cal{N}_\theta[v](x) = \te{MLP}_\te{dec}((H^{(L)})^\top) \in \bb{R}^{1}, \]
 which approximates the solution at the query point $x$. 
 
-
 % \subsection{hard-constraint vs soft-constraint for the boundary condition}
 % Consider the steady-state PDE with the following form:
 % \begin{align}\label{eq:general}
@@ -718,16 +700,19 @@ which approximates the solution at the query point $x$.
 
 % In Section \ref{sec:3.2.2}, we will compare the two methods for solving the Grad-Shafranov equation.
 
-\section{Method}
+\section{Method} \label{sec:4}
 
-In this section, we present the training procedures for the neural operators and explain how they
+In this section, we present FreeGSNO, 
+a novel method for solving the free-boundary Grad-Shafranov equation 
+combining neural operators and the iterative methods.
+We describe the training procedures for the neural operators and explain how they
 are integrated within the overall algorithm for solving the free-boundary Grad-Shafranov equation. 
-Hereafter, we refer to the proposed method as FreeGSNO.
 
 \subsection{Training procedure of neural operators}
+
 Let us consider the one-step Grad-Shafranov equation \eqref{eq:5}.
-Because the operator $\Delta^*$ is linear, we can decompose the solution into the
-residual part and the boundary part;
+Inspired by \cite{BENO}, we decompose the equation into the
+residual part and the boundary part like as below, because the operator $\Delta^*$ is linear.
 \begin{align}\label{eq:9}&\left\{
   \begin{aligned}
     \Delta^*\psi_r^{(n)}(R, Z) &= -\mu_0 R J_\phi(R, Z; \psi^{(n-1)}),& \quad &(R, Z) \in \Omega, \\
@@ -736,9 +721,9 @@ residual part and the boundary part;
   \label{eq:10}&\left\{
   \begin{aligned}
     \Delta^*\psi_b^{(n)}(R, Z) &= 0, &\quad &(R, Z) \in \Omega, \\
-    \psi_b^{(n)}(R, Z) &= \psi_{\te{bdry}}(R, Z; \psi^{(n-1)}), & & (R, Z) \in \partial \Omega.
+    \psi_b^{(n)}(R, Z) &= \overline{\psi}(R, Z; \psi^{(n-1)}), & & (R, Z) \in \partial \Omega.
   \end{aligned}
-  \right.
+  \right. .
 \end{align}
 Then it is clear that $\psi^{(n)} = \psi_r^{(n)} + \psi_b^{(n)}$.
 
@@ -747,24 +732,33 @@ First, for \eqref{eq:9}, we use the modified PI-DeepONet to learn the operator
 where $\cal{Y}_0 = \{ u \in H^2(\Omega) : u|_{\partial \Omega} = 0 \}$.
 We need to encode the source term $-\mu_0 R J_\phi(R, Z; \psi^{(n-1)})$.
 To do this, we discretize the source term $-\mu_0 R J_\phi(R, Z; \psi^{(n-1)})$ on the grid
-points of the domain $\Omega$, 
-and multiply a normalization constant $J_{\te{norm}}$
-to obtain the branch net input $J_D \in [0, 1]^{N_R \times N_Z}$.
+points of the domain $\Omega$ to obtain
+$J_D = [J_\phi(R_i, Z_j; \psi^{(n-1)})]_{i=1, j=1}^{N_R, N_Z} \in \bb{R}^{N_R \times N_Z}$,
+and divide by a normalization constant 
+$J_{\te{norm}} = \max J_D - \min J_D$
+to obtain the scaled branch net input to $\cal{O}(1)$; 
+$\frac{J_D}{J_{\te{norm}}} \in \left[
+\frac{\min J_D}{J_{\te{norm}}}, 1 + \frac{\min J_D}{J_{\te{norm}}}
+\right]^{N_R \times N_Z}$.
 Here $N_R$ and $N_Z$ are the number of grid points in the $R$ and $Z$ direction, respectively.
 Since the discretized source term has the structure of two-dimensional image data,
 we use a convolutional neural network (CNN) with one channel input 
 as the branch net of the PI-DeepONet to encode the source term, to obtain 
-\[ b = b(J_D) = \te{CNN}(J_D) \in \bb{R}^p. \]
+\[ b = b\left(\frac{J_D}{J_{\te{norm}}}\right) = \te{CNN}\left(\frac{J_D}{J_{\te{norm}}}\right) \in \bb{R}^p, \]
+where $p$ is the dimension of the encoded source term.
 
 On the other hand, the trunk net is a simple MLP, which encodes the coordinates $(R, Z)$;
-\[ t = t(R, Z) =\te{MLP}_t(R, Z) \in \bb{R}^p. \]
+\[ t = t(R, Z) =\te{MLP}_\te{t}(R, Z) \in \bb{R}^p. \]
 In the standard PI-DeepONet formulation, the outputs of the branch net and the trunk net are
 combined by the dot product, but in our experiments this dot-product form was not
 sufficiently expressive for the Grad-Shafranov solution.
 Motivated by NOMAD \cite{NOMAD}, our model concatenates the branch and trunk outputs 
 and feeds them into a decoder MLP.
 Then we renormalize the output to obtain the final result; 
-\[ \cal{N}_r[\psi^{(n-1)}](R, Z) = \frac{1}{J_{\te{norm}}}\te{MLP}_d(b(J_D), t(R, Z)) \in \bb{R}. \]
+\[ \cal{N}_r[\psi^{(n-1)}](R, Z) = J_{\te{norm}}\te{MLP}_{\te{d}}(b(J_D), t(R, Z)) \in \bb{R}. \]
+We note that because the differential operator $\Delta^*$ is linear, 
+the multiplication and division to both sides of equations \eqref{eq:9} and \eqref{eq:10} 
+by the normalization constant $J_{\te{norm}}$ does not affect the solution of the PDE.
 
 To train this model, we impose the boundary condition using the hard-constraint formulation.
 In $\eqref{eq:7}$, the boundary condition is enforced through a penalty term in the loss function;
@@ -787,68 +781,54 @@ as shown in Section \ref{sec:5}.
 
 Next, for \eqref{eq:10}, we use the PINTO to learn the operator
 \[ \cal{N}_b: \cal{X} \to \cal{Y}_{\psi^{(n-1)}}, \ \cal{N}_b [\psi^{(n-1)}] = \psi_b^{(n)}. \]
-To do this, we need to encode the boundary value $\psi_{\te{bdry}}$.
-Let $X_{\te{bdry}, D} = [(R_{b, i}, Z_{b, i})]_{i=1}^{N_b} \in \bb{R}^{N_b \times 2}$  be the coordinates of the discretization points 
+To do this, we need to encode the boundary value $\overline{\psi}$.
+Let $\overline{X}_D = [(R_{i}, Z_{i})]_{i=1}^{N_b} \in \bb{R}^{N_b \times 2}$ 
+be the coordinates of the discretization points 
 on the boundary $\partial \Omega$, and let 
 \begin{align*}
-  \psi_{\te{bdry}, D} &= \psi_{\te{bdry}, norm}\left[
-  \psi_{\te{bdry}}(R_{b, 1}, Z_{b, 1}; \psi^{(n-1)}), \cdots, \right. \\
-  & \left. \psi_{\te{bdry}}(R_{b, N_b}, Z_{b, N_b}; \psi^{(n-1)}) \right]
-  \in [0, 1]^{N_b}.
+  \overline{\psi}_{D} &= \left[
+  \overline{\psi}(R_{1}, Z_{1}; \psi^{(n-1)}), \cdots, 
+  \overline{\psi}(R_{N_b}, Z_{N_b}; \psi^{(n-1)}) \right]
 \end{align*}
-where $\psi_{\te{bdry}, \te{norm}}$ is the normalization constant for the boundary value.
-To evaluate $\psi_b^{(n)}(R, Z)$, we provide $(R, Z)$, $X_{\te{bdry}, D}$ and $\psi_{\te{bdry}, D}$
-as the query, keys and values, respectively. After rescaling the normalized output, we have
+We also normalize the boundary values by dividing by the normalization constant 
+$\overline{\psi}_{\te{norm}}$, which is similarly defined as $J_{\te{norm}}$ for the source term.
+Then we provide $(R, Z)$, $\overline{X}_{D}$ 
+and $\frac{\overline{\psi}_{D}}{\overline{\psi}_{\te{norm}}}$ 
+as the query, keys and values, respectively, to evaluate $\psi_b^{(n)}(R, Z)$.
+
+We have
 \begin{align*}
   \hat{\psi}_b^{(n)} &= \cal{N}_b[\psi^{(n-1)}] (R, Z) \\
-  &= \frac{1}{\psi_{\te{bdry}, \te{norm}}}\te{PINTO}(R, Z; X_{\te{bdry}, D}, \psi_{\te{bdry}, D}) \in \bb{R}.
+  &= \overline{\psi}_{\te{norm}}\te{PINTO}(R, Z; \overline{X}_D, \overline{\psi}_D) \in \bb{R}.
 \end{align*}
-To train PINTO, we use the loss function defined in \eqref{eq:7}. 
+To train PINTO, we use the weighted version of the loss function defined in \eqref{eq:7}. 
 Finally, the approximate solution is $\hat{\psi}^{(n)} = \hat{\psi}_r^{(n)} + \hat{\psi}_b^{(n)}$.
-Figure~\ref{fig:integrated} shows the structure of the integrated version of the PI-DeepONet
+Figure~\ref{fig:integrated} displays the structure of the integrated version of the PI-DeepONet
 and the PINTO for solving the one-step Grad-Shafranov equation.
 
-We now explain the motivation of dividing the problem into two equations.
-ProPINN \cite{propagation} describe the ``propagation failure mode'' 
-of the physics-informed neural networks.
-For example, in the case of a finite element method, the interior solution is affected
-by the boundary values, because the neighboring elements are dependent on each other.
-However, in the case of a neural network, the gradient of the model parameter at 
-different locations are easily orthogonal,
-resulting in an independent optimization of the model parameter at each location and
-the failure of the propagation of the boundary information into the interior of the domain.
-(Figure 1 of \cite{R3} illustrates this phenomenon.)
-% How can I show the 
-
-The transformer architecture is known to be effective for learning  
-long-range dependencies, and hence many studies have been conducted for solving the PDEs 
-with transformer architecture \cite{PINTO,Transolver,BENO}.
-% However, because the cost of the forward pass of the transformer is high,
-% in many cases the training is done by data-driven approach.
-% On the other hand, 
-As discussed above, PINTO \cite{PINTO} combines the transformer architecture,
-with physics-informed loss functions.
-However, it is primarily designed to handle only different boundary conditions, 
-and it is trained and evaluated for a homogeneous source term.
-
-Meanwhile, the Physics-informed DeepONet \cite{DeepONet} architecture is known to be effective
-for learning mappings from source terms to solutions, at a lower forward-pass cost 
-than transformer-based architectures.
-Also, due to the decomposition of the solution, it is easier to impose the 
-boundary condition using a hard-constraint method.
-Therefore, combining PI-DeepONet with PINTO is a natural framework
-for solving the one-step Grad-Shafranov equation.
-
-% 여기에 구체적인 모델 실험 방법과 결과 넣기
+\begin{figure*}
+  \centering
+  \includegraphics[width=0.95\linewidth]{img/model.png}
+  \caption{
+    The proposed neural operator model learns 
+    to solve the one-step Grad-Shafranov equation. 
+    The model consists of two sub-models, the PI-DeepONet and the PINTO.
+    Given the discretized and normalized versions of the source term and the boundary values,
+    each model predicts the residual and boundary parts of the solution, respectively.
+    Then the outputs of the two models are combined to obtain the final solution.
+    They are trained separately by the physics informed approach, without 
+    access to the solution of the PDE.
+  }
+  \label{fig:integrated}
+\end{figure*}
 
 \subsection{Integration of the Proposed Model with the FreeGSNKE Solver}
 The FreeGSNKE solver is a numerical solver for the Grad-Shafranov equation 
 implemented as a Python package.
 It handles three different problems, the static forward problem, the static inverse problem,
 and the evolutive forward problem. 
-In this work we only focus on the static forward Grad-Shafranov solver, and 
-the extension to other problems is left for a future study. 
-More details are provided in Appendix~\ref{sec:freegsnke}.
+As we mentioned earlier, in this work we only focus on the static forward Grad-Shafranov problem,
+and the extension to other problems is left for a future study. 
 
 In the early iterations, FreeGSNKE solver uses the simple fixed-point iteration method, and when
 the error is small enough, it switches to the Jacobian-free Newton-Krylov method.
@@ -861,9 +841,9 @@ The detailed algorithm is described in Algorithm~\ref{alg:1}.
     \STATE \textbf{Phase 1: Fixed-Point Iteration}
     \WHILE {the stopping criterion is not satisfied}
       \STATE Update the plasma domain $\Omega_p^{(n-1)}$ from $\psi^{(n-1)}$
-      \STATE Compute $J_\phi^{(n-1)} = J_\phi^{(n-1)}(R, Z; \psi^{(n-1)})$ 
-      \STATE Compute the boundary value $\psi_{\rm{bdry}}^{(n-1)}$ 
-      \STATE ``Solve equation'' \eqref{eq:5} to get $\psi^{(n)}$
+      \STATE Compute $J_\phi^{(n-1)} = J_\phi^{(n-1)}(R, Z; \psi^{(n-1)})$ by \eqref{eq:3}
+      \STATE Compute the boundary value $\psi_{\rm{bdry}}^{(n-1)}$ by \eqref{eq:4}
+      \STATE $\psi^{(n)} \gets \cal{F}(\psi^{(n-1)})$
       \STATE $n \gets n + 1$
     \ENDWHILE
     \STATE \textbf{Phase 2: Newton-Krylov Iteration}
@@ -871,11 +851,11 @@ The detailed algorithm is described in Algorithm~\ref{alg:1}.
       \STATE Krylov dimension $d \gets 0$ 
       \WHILE {the Krylov stopping criterion is not satisfied}
         \STATE $d \gets d + 1$
-        \STATE Compute the basis $\{q_i\}_{i=1}^d$ by Arnoldi iteration $\gets$ 
-        Here we need to compute $\cal{F}$
-        \STATE Solve the damped least squares problem to get coefficients $\{c_i\}_{i=1}^d$
+        \STATE Construct the Krylov subspace $\cal{K}_d$ as \eqref{eq:krylov}
+        \STATE Solve the damped least squares problem \eqref{eq:opt} to obtain 
+        $\delta \psi \in \cal{K}_d$
       \ENDWHILE
-      \STATE Update $\psi^{(n)} = \psi^{(n-1)} + \sum_{i} c_i q_i$
+      \STATE Update $\psi^{(n)} = \psi^{(n-1)} + \delta \psi$
       \STATE $n \gets n + 1$
     \ENDWHILE
     \STATE \textbf{Output:} The solution $\psi = \psi^{(n)}$ 
@@ -883,12 +863,12 @@ The detailed algorithm is described in Algorithm~\ref{alg:1}.
   \caption{Two-Phase Iterative Method for Solving the Grad-Shafranov Equation}
   \label{alg:1}
 \end{algorithm}
-Note that the steps in the fixed-point iteration is the same step for computing $\cal{F}$.
 
-Our method replaces the step ``solve equation'' in the above algorithm
-and the corresponding part in the Arnoldi iteration  
-for the Jacobian-free Newton-Krylov method, with our neural operator model.
-In the next section, we will show the numerical results of our method, and compare it with the original Freegsnke solver.
+Note that our neural operator model is used when computing $\cal{F}$ and 
+constructing the Krylov subspace $\cal{K}_d$. See Appendix~\ref{sec:JFNK} for 
+the definition of the Krylov subspace.
+In the next section, we will show the numerical results of our method, 
+and compare it with the original Freegsnke solver.
 
 \section{Experiments} \label{sec:5}
 
@@ -903,9 +883,9 @@ In this case, the Grad-Shafranov equation has a simple form of the toroidal
 current density, 
 \[ J_\phi(R, Z) = \frac{1}{\mu_0 R} (- A_1 R^2 + A_2), \]
 and the equation is reduced to a linear PDE.
-Then the solution $\psi^*$ can be expressed as a linear combination of the basis functions \cite{Solovev}
+Then the solution $\psi^\star$ can be expressed as a linear combination of the basis functions \cite{Solovev}
 $\{\psi_i\}_{i=1}^\infty$ and the particular solution of the PDE, as follows:
-\[ \psi^*(R, Z) = \sum_{i=1}^\infty c_i \psi_i(R, Z) + \frac{A_1}{8}R^4 - \frac{A_2}{2}Z^2.\]
+\[ \psi^\star(R, Z) = \sum_{i=1}^\infty c_i \psi_i(R, Z) + \frac{A_1}{8}R^4 - \frac{A_2}{2}Z^2.\]
 where the coefficients $\{c_i\}_{i=1}^\infty$ are determined by the boundary condition.
 
 We follow \cite{Solovev} and we use the first 4 basis functions 
@@ -913,19 +893,33 @@ We follow \cite{Solovev} and we use the first 4 basis functions
 The coefficients $\{c_i\}_{i=1}^4$ are determined from the values of the $\psi$ at 
 selected major boundary points;
 \begin{itemize}
-  \item $\psi(R_i, 0) = \psi(R_o, 0) = 0$,
+  \item $\psi(R_i, 0) = \psi(R_{o}, 0) = 0$,
   \item $\psi(R_t, Z_t) = 0$, 
   \item $\partial_R \psi(R_t, Z_t) = 0$,
 \end{itemize}
-where $R_i$ is the inner radius, $R_o$ is the outer radius, and $(R_t, Z_t)$ is the 
+where $R_i$ is the inner radius, $R_{o}$ is the outer radius, and $(R_t, Z_t)$ is the 
 location of the topmost point of the plasma. 
-Figure \ref{fig} shows some examples of the solution of the Solov'ev equilibrium with the above parameters and its corresponding plasma boundary.
+Figure \ref{fig:solovev_solution} shows the above results of the solution of the Solov'ev equilibrium with the above parameters and its corresponding plasma boundary.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.3\textwidth]{img/solovev_shape.png}
+  \caption{
+    A visualization of the poloidal plasma flux with the Solov'ev profiles. 
+    The white dashed line indicates the plasma boundary, which is defined as the 
+    zero level set of the poloidal flux $\psi$. 
+    Three major boundary points are marked with white dots,
+    and the magnetic axis is marked with a white cross.
+  }
+  \label{fig:solovev_solution}
+\end{figure}
+
 
 We set the computational domain $\Omega$ as $[0.5, 1.5] \times [-0.6, 0.6]$,
 without the tokamak geometry.
-Then we sample 7,500 parameter tuples $A_1, A_2 \in [0, 1], R_o \in [1.2, 1.3], R_i \in [0.7, 0.8], R_t \in [0.7, 1.0]$, and $Z_t \in [0.2, 0.54]$,
+Then we sample 7,500 parameter tuples $A_1, A_2 \in [0, 1], R_{o} \in [1.2, 1.3], R_i \in [0.7, 0.8], R_t \in [0.7, 1.0]$, and $Z_t \in [0.2, 0.54]$,
 with each parameter chosen uniformly at random, and we prune some samples 
-so that $R_i < R_t < R_o$, $J_\phi$ does not change sign in the plasma region, and 
+so that $R_i < R_t < R_{o}$, $J_\phi$ does not change sign in the plasma region, and 
 we discard samples with excessively large source terms to stabilize training.
 We discretize the domain with $N_R = 65$ and $N_Z = 65$ grid points 
 to compute the toroidal current density and the boundary value for the training of the neural operators.
@@ -1002,8 +996,27 @@ machine components as described in the below;
 \end{itemize}
 MAST-U contains 12 active poloidal field coils, 150 passive structures 
 (i.e., the vessel, gas baffles, coil cases, etc.), and a limiter structure.
-See the right figure of Figure~\ref{fig:tokamak} for the locations of the structures and 
+% See the right figure of Figure~\ref{fig:tokamak} for the locations of the structures and 
+See Figure~\ref{fig:tokamak} for the locations of the structures and 
 see \cite{validation} for the detailed description of the MAST-U machine.
+
+\begin{figure}
+  \centering
+  % \includegraphics[width=0.6\textwidth]{img/tokamak_real.jpg}
+  \includegraphics[width=0.22\textwidth]{img/tokamak.png}
+  \caption{
+    % Left: Internal view of the Joint European Torus (JET) vessel with a metallic wall.
+    % Image source: EUROfusion / Wikimedia Commons, licensed under CC BY 4.0.
+    % Right: Modeling toroidal slice of the MAST-U tokamak using FreeGSNKE.
+    Modeling toroidal slice of the MAST-U tokamak using FreeGSNKE.
+    The blue rectangle is the active coil and solenoid region, the black polygon is 
+    the limiter-facing surface of the tokamak, and the grey polygon is the tokamak structure.
+    See Section~\ref{sec:5.2} for a detailed description of the above terms related to the 
+    tokamak structure.
+    }
+  \label{fig:tokamak}
+\end{figure}
+
 
 FreeGSNKE solver has options to model each current of the active poloidal field coils,
 refine and distribute the currents of the passive structures, and model the limiter structure
@@ -1021,7 +1034,8 @@ $I_p$ is the total plasma current.
 The parameter 
 \[ \beta_\te{pol} = \frac{8\pi}{\mu_0} \frac{\langle p \rangle}{I_p^2} \sim 
 \frac{\langle p \rangle}{I_p^2}, \]
-where $\langle p \rangle$ is the volume-averaged plasma pressure, is a dimensionless
+where $\langle p \rangle$ is the volume-averaged plasma pressure in the plasma region, 
+is a dimensionless
 parameter that represents the ratio of the plasma pressure to the poloidal magnetic field pressure. 
 Hence it affects the shape of the plasma region, and it is reasonable to sample 
 the parameters near the typical value of $\beta_\te{pol}$ for the MAST-U machine. 
@@ -1069,6 +1083,7 @@ converge to a solution with high accuracy, and it can capture the plasma boundar
   \caption{The training loss progress of the residual net and the boundary net for the MAST-U tokamak equilibrium. Final training loss is ... for the residual net, and ... for the boundary net.}
   \label{fig:loss}
 \end{figure}
+
 \begin{table*}[t]
   \centering
   \begin{adjustbox}{angle=90}
@@ -1079,7 +1094,7 @@ converge to a solution with high accuracy, and it can capture the plasma boundar
     \multicolumn{2}{|c|}{Parameters $(p_{\text{axis}}, I_p)$} & case &
     X-point value & X-point position & boundary value & axis value & axis position & 
     iteration & 
-    $\Delta \psi_{\te{bdry}}$ & $\Delta \psi_{\te{axis}}$ \\
+    $\Delta \overline{\psi}$ & $\Delta \psi_{\te{axis}}$ \\
     \hline
     \multirow{2}{*}{($8$ kPa, $600$ kA)} & 
     FreeGSNO & diverted & $2.8770\times 10^{-2}$ & $(0.596, -1.096)$ & 
@@ -1102,6 +1117,13 @@ converge to a solution with high accuracy, and it can capture the plasma boundar
     & FreeGSNKE & diverted & $3.3037\times 10^{-2}$ & $(0.646, -1.181)$ & 
     $3.3037 \times 10^{-2}$ & $1.1067 \times 10^{-1}$ & $(1.056, -0.000)$ & 27 & & \\
     \hline
+    \multirow{2}{*}{($8$ kPa, $400$ kA)} & 
+    FreeGSNO & limited & $1.8019\times 10^{-2}$ & $(0.469, -0.841)$ & 
+    $2.1553\times 10^{-2}$ & $5.4939 \times 10^{-2}$ & $(0.700, -0.014)$ & 27 &
+    \multirow{2}{*}{$1.4962 \times 10^{-4}$} & \multirow{2}{*}{$3.0452 \times 10^{-3}$} \\
+    & FreeGSNKE & limited & $1.7664\times 10^{-2}$ & $(0.465, -0.831)$ & 
+    $2.1404 \times 10^{-2}$ & $5.4635 \times 10^{-2}$ & $(0.702, -0.000)$ & 27 & & \\
+    \hline
     \end{tabular}}%
   \end{adjustbox}
   \caption{
@@ -1112,26 +1134,31 @@ converge to a solution with high accuracy, and it can capture the plasma boundar
     boundary value is the value of $\psi$ on the plasma boundary, 
     axis value and position are the value of $\psi$ on the magnetic axis and its position, and
     iteration is the sum of iterations for the fixed-point iteration and the Jacobian-free Newton-Krylov method, with the stopping criterion of $10^{-9}$ for the residual loss.
-    Lastly, $\Delta \psi_{\te{bdry}}$ and $\Delta \psi_{\te{axis}}$ are the differences of the boundary value and the magnetic axis value between the two solvers.
+    Lastly, $\Delta \overline{\psi}$ and $\Delta \psi_{\te{axis}}$ are the differences of the boundary value and the magnetic axis value between the two solvers.
   }\label{tab:1}
 \end{table*}
 \begin{figure*}
   \centering
   \includegraphics[width=0.9\linewidth]{img/mast_u_diverted.png}
+  \includegraphics[width=0.9\linewidth]{img/mast_u_limited.png}
   \caption{The comparison between the predicted (converged) solution by the neural operators and the
-  numerical solution by the FreeGSNKE solver for the MAST-U tokamak equilibrium. Leftmost:
+  numerical solution by the FreeGSNKE solver for the MAST-U tokamak equilibrium. 
+  Upper row: The diverted plasma case. 
+  The physical parameters are given by $p_\te{axis} = 8$ kPa and $I_p = 600$ kA. 
+  Lower row: The limited plasma case.
+  The physical parameters are given by $p_\te{axis} = 8$ kPa and $I_p = 400$ kA.
+  Leftmost:
   the predicted solution by the neural operators. Middle left: the solution by the 
   FreeGSNKE solver. 
   Middle right: the absolute error $\psi_\te{pred} - \psi_\te{num}$. 
   Rightmost: the boundary description of each solution. 
   The black solid line is a tokamak structure, the magenta dashed line is the plasma boundary, 
   and the red cross is the location of the magnetic axis. 
-  The physical parameters are $p_\te{axis} = 8$ kPa and $I_p = 600$ kA. 
   }
   \label{fig:4}
 \end{figure*}
 
-\section{Summary, Conclusions and Future Work}
+\section{Summary, Conclusions and Future Work} \label{sec:6}
 In this work, we propose FreeGSNO, a method that uses neural operators 
 to solve the free-boundary Grad-Shafranov equation.
 The proposed method is based on the decomposition of the solution into the residual part and the boundary part, and we use the PI-DeepONet for the residual part and the PINTO for the boundary part.
@@ -1192,11 +1219,96 @@ with training only once.
   ...
 \end{acknowledgements}
 
+\bibliographystyle{spmpsci}      % mathematics and physical sciences
+\bibliography{ref}   % name your BibTeX data base
+
+% Delete some references that are not cited in the main text.
+
 \begin{appendix}
-  \section{Details of the Normalization of the Profile Parameter}\label{sec:normalization}
-  ...
+  \section{Detail Definitions of some Terms}\label{sec:normalization}
+  In this section, we describe the details of the terms in \eqref{eq:currentdensity}.
+  To determine the normalization parameter $\lambda$ and $\beta_0$, we first
+  set the constraint of the current $I_p$ and the pressure at the magnetix axis $p_{\te{axis}}$.
+  Then $\lambda$ and $\beta_0$ are determined by solving the following equations:
+  \begin{align*}
+    I^R &= \int_{\Omega_p} R \tilde{j}_p(\psi, \psi_{\te{o}}, \psi_{\te{x}})(R, Z) dR dZ, \\
+    I_R &= \int_{\Omega_p} \frac{1}{R} \tilde{j}_F(\psi, \psi_{\te{o}}, \psi_{\te{x}})(R, Z) dR dZ, \\
+    S &= \frac{p_{\te{axis}} R_{\te{geo}}\alpha_m}
+    {B\left(\frac{1}{\alpha_m}, 1 + \alpha_n\right)(\psi_{\te{x}} - \psi_{\te{o}})}, \\
+    \lambda &= \frac{I_p}{I_R} + \frac{p_{\te{axis}} R_{\te{geo}}}{S} \frac{I^R}{I_R - 1}, \\
+    \beta_0 &= -\frac{p_{\te{axis}} R_{\te{geo}}}{S}.
+  \end{align*}
+
+  The normalized pressure and toroidal field profiles are defined as follows:
+  \begin{align*}
+    \tilde{j}_p(\psi, \psi_{\te{o}}, \psi_{\te{x}}) &= (1 - \psi_{\te{s}}^{\alpha_m})^{\alpha_n} \\
+    \tilde{j}_F(\psi, \psi_{\te{o}}, \psi_{\te{x}}) &= (1 - \psi_{\te{s}}^{\beta_m})^{\beta_n} \\
+    \psi_{\te{s}} &= \frac{\psi - \psi_{\te{o}}}{\psi_{\te{x}} - \psi_{\te{o}}}. \\
+  \end{align*}
+  Here, $B(\cdot, \cdot)$ is Euler beta function.
+  The parameters $\alpha_m, \alpha_n, \beta_m, \beta_n$ determine  
+  the shapes of the pressure and toroidal field profiles,
+  and each value is fixed when the FreeGSNKE solver is run.
+  The quantities $\psi_{\te{o}}$ and $\psi_{\te{x}}$ are the poloidal-flux values
+  at the plasma magnetic axis and at the plasma boundary, respectively,
+  and it is determined by the solution of the Grad-Shafranov equation, 
+  so it is changed at each iteration step. 
+
+  The Green's function $G(R, Z; R', Z')$ in the equation \eqref{eq:4} is defined as follows:
+  \begin{align*} G(R, Z; R', Z') &= \frac{\mu_0}{2 \pi} \frac{\sqrt{R R'}}{k} \left[
+    (2 - k^2) K(k) - 2E(k) 
+  \right], \\ k^2 &= \frac{4 R R'}{(R + R')^2 + (Z - Z')^2}. \end{align*}
+  $K$ and $E$ are the complete elliptic integrals of the first and second kind, respectively.
+
   \section{Jacobian-Free Newton-Krylov Method}\label{sec:JFNK}
-  ...
+
+  For completeness, we briefly describe the Jacobian-free Newton-Krylov method 
+  which is used in the FreeGSNKE solver to solve the Grad-Shafranov equation.
+  We refer Appendix 1 of \cite{freegsnke} for a more detailed description of the method.
+  We also refer \cite{jfnksurvey} to the reader for a rigorous description 
+  and various applications of the Jacobian-free Newton-Krylov method.
+
+  Let $\cal{G}$ be a nonlinear operator from a Banach space $\cal{X}$ to a Banach space $\cal{Y}$,
+  and we want to find a solution $u^\star \in \cal{X}$ such that $\cal{G}(u^\star) = 0$.
+  Assume that $\cal{G}$ is Fréchet differentiable, and the previous iteration solution is $u^{(n)}$.
+  Then the Newton equation is given by
+  \[ \cal{G}'[u^{(n)}] (\delta u) = - \cal{G}(u^{(n)}), \]
+  where $\cal{G}'[u^{(n)}]$ is the Fréchet derivative of $\cal{G}$ at $u^{(n)}$.
+
+  Because directly solving the above equation is expensive, 
+  we use the Newton-Krylov method which solves the optimization problem 
+  on the Krylov subspace $\cal{K}_d \subset \cal{X}$;
+  \begin{align} \label{eq:opt}
+    \te{minimize}_{\delta u \in \cal{K}_d} \left\|\cal{G}(u^{(n)}) + 
+  \cal{G}'[u^{(n)}] (\delta u) \right\| 
+  \end{align}
+  where the Krylov subspace is defined as
+  \begin{align} \label{eq:krylov}
+    \cal{K}_d = \te{span} \left\{
+    \cal{G}(u^{(n)}), \cal{G}'[u^{(n)}] (\cal{G}(u^{(n)})), \ldots, 
+    \left(\cal{G}'[u^{(n)}]\right)^{d-1} \cal{G}(u^{(n)}) 
+    \right\}. 
+  \end{align}
+  Typically, the Arnoldi iteration is used to build the orthonormal basis of the 
+  Krylov subspace $\cal{K}_d$ to solve the above equation efficiently
+  by the least-squares.
+
+  As in our problem, the Jacobian-vector product $\cal{G}'[u^{(n)}](v)$ 
+  is often hard or impossible to compute directly.
+  Then it is approximated by the finite difference method as follows:
+  \[ \cal{G}'[u^{(n)}](v) \approx 
+  \frac{\cal{G}(u^{(n)} + \epsilon v) - \cal{G}(u^{(n)})}{\epsilon}, \]
+  where $\epsilon$ is a small parameter.
+
+  Our aim is rewritten as to find a solution $\psi^\star$ such that 
+  \[ \psi^\star - \cal{F}(\psi^\star) = 0. \]
+  (Recall the definition of the operator $\cal{F}$ in \eqref{eq:defF}.)
+  Hence above operator $\cal{G}$ corresponds to $\cal{I} - \cal{F}$, 
+  where $\cal{I}$ is the identity operator.
+  We emphasize that we use our neural operator model repeatedly
+  to build the Krylov subspace $\cal{K}_d$, and there is a possibility that 
+  the speed of the neural operator is faster than the original FreeGSNKE solver.
+
 \end{appendix}
 
 % Authors must disclose all relationships or interests that 
@@ -1208,27 +1320,6 @@ with training only once.
 % The authors declare that they have no conflict of interest.
 
 
-% BibTeX users please use one of
-% \bibliographystyle{spbasic}      % basic style, author-year citations
-\bibliographystyle{spmpsci}      % mathematics and physical sciences
-%\bibliographystyle{spphys}       % APS-like style for physics
-\bibliography{ref}   % name your BibTeX data base
-
-% Non-BibTeX users please use
-% \begin{thebibliography}{}
-% %
-% % and use \bibitem to create references. Consult the Instructions
-% % for authors for reference list style.
-% %
-% \bibitem{RefJ}
-% % Format for Journal Reference
-% Author, Article title, Journal, Volume, page numbers (year)
-% % Format for books
-% \bibitem{RefB}
-% Author, Book title, page numbers. Publisher, place (year)
-% % etc
-% \end{thebibliography}
 
 \end{document}
-% end of file template.tex
 

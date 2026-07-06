@@ -23,11 +23,37 @@
        adsurl = {https://ui.adsabs.harvard.edu/abs/1966RvPP....2..103S},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
+@article{jfnksurvey,
+  title = {Jacobian-Free {{Newton}}--{{Krylov}} Methods: A Survey of Approaches and Applications},
+  author = {Knoll, D.A. and Keyes, D.E.},
+  year = 2004,
+  journal = {Journal of Computational Physics},
+  volume = {193},
+  number = {2},
+  pages = {357--397},
+  issn = {0021-9991},
+  doi = {10.1016/j.jcp.2003.08.010},
+  abstract = {Jacobian-free Newton--Krylov (JFNK) methods are synergistic combinations of Newton-type methods for superlinearly convergent solution of nonlinear equations and Krylov subspace methods for solving the Newton correction equations. The link between the two methods is the Jacobian-vector product, which may be probed approximately without forming and storing the elements of the true Jacobian, through a variety of means. Various approximations to the Jacobian matrix may still be required for preconditioning the resulting Krylov iteration. As with Krylov methods for linear problems, successful application of the JFNK method to any given problem is dependent on adequate preconditioning. JFNK has potential for application throughout problems governed by nonlinear partial differential equations and integro-differential equations. In this survey paper, we place JFNK in context with other nonlinear solution algorithms for both boundary value problems (BVPs) and initial value problems (IVPs). We provide an overview of the mechanics of JFNK and attempt to illustrate the wide variety of preconditioning options available. It is emphasized that JFNK can be wrapped (as an accelerator) around another nonlinear fixed point method (interpreted as a preconditioning process, potentially with significant code reuse). The aim of this paper is not to trace fully the evolution of JFNK, nor to provide proofs of accuracy or optimal convergence for all of the constituent methods, but rather to present the reader with a perspective on how JFNK may be applicable to applications of interest and to provide sources of further practical information.}
+}
 
 @article{Note,
   author = {Youjun Hu},
   title = {Notes on tokamak equilibrium},
 }
+
+@article{Luxon_1982,
+  title = {Magnetic Analysis of Non-Circular Cross-Section Tokamaks},
+  author = {Luxon, J.L. and Brown, B.B.},
+  year = 1982,
+  month = jun,
+  journal = {Nuclear Fusion},
+  volume = {22},
+  number = {6},
+  pages = {813},
+  doi = {10.1088/0029-5515/22/6/009},
+  abstract = {Techniques are presented for determining the MHD equilibrium configuration for circular and non-circular plasmas from measurements of the magnetic field and flux made outside the discharge. Least-squares minimization techniques are introduced to provide an objective means for comparing the experimental data with the corresponding calculated equilibrium and for error estimation. Free-boundary equilibria using a simple model for the plasma-current profile with three free parameters -- total current, poloidal beta, and a single parameter describing the peakedness of the current profile -- are found to be statistically adequate and sufficient to describe the magnetic configuration of the discharge. In plasmas with significant non-circularity, the Shafranov dimensionless inductance, {$\ell$}i, can be determined independent of {$\beta$}p. Examples of the application of the technique to discharges in the Doublet-Ill tokamak are presented.}
+}
+
 
 @article{Lao_1985,
 doi = {10.1088/0029-5515/25/11/007},
@@ -69,7 +95,34 @@ abstract = {A practical method for performing a tokamak equilibrium reconstructi
   pages = {614--633},
   doi = {10.1088/0029-5515/42/5/313}
 }
+@article{control2,
+title = {The MAST Upgrade plasma control system},
+journal = {Fusion Engineering and Design},
+volume = {159},
+pages = {111764},
+year = {2020},
+issn = {0920-3796},
+doi = {https://doi.org/10.1016/j.fusengdes.2020.111764},
+url = {https://www.sciencedirect.com/science/article/pii/S0920379620303124},
+author = {Graham McArdle and Luigi Pangione and Martin Kochan},
+keywords = {MAST Upgrade, Plasma control, Software architecture, Multiple actuators, Virtual actuator, Functional chain},
+abstract = {The plasma control system (PCS) for MAST Upgrade inherits most of the original MAST hardware / software architecture, which was based on an architecture developed by General Atomics. Whilst the digital control hardware has already had a mid-service upgrade on MAST, some additional I/O was required to support the numerous additional input signals, poloidal field (PF) coils and gas channels on MAST-U. The generic software infrastructure from General Atomics has been retained for MAST-U but the tokamak-specific algorithm software has been substantially re-written to support the additional capabilities of MAST-U, especially in the areas of gas injection control and coil current control. The software structure presented here has been designed to provide maximum flexibility to exploit the new features of MAST-U whilst maintaining a manageable degree of complexity in the operation of the system.}
+}
 
+@article{control1,
+title = {Closed-loop simulation with Grad-Shafranov equilibrium evolution for plasma control system development},
+journal = {Fusion Engineering and Design},
+volume = {146},
+pages = {2361-2365},
+year = {2019},
+note = {SI:SOFT-30},
+issn = {0920-3796},
+doi = {https://doi.org/10.1016/j.fusengdes.2019.03.191},
+url = {https://www.sciencedirect.com/science/article/pii/S0920379619305241},
+author = {Anders Welander and Erik Olofsson and Brian Sammuli and Michael L. Walker and Bingjia Xiao},
+keywords = {Design, Simulation, Control, PCS},
+abstract = {Plasma control design increasingly depends on fast simulations able to connect to operational plasma control system (PCS) software for iterative development. GSevolve is a nonlinear free-boundary simulation that evolves the Grad-Shafranov equilibrium including current and pressure profiles, and can connect to all versions of the DIII-D PCS operational on devices around the world. Its ability to simulate the evolution of current continuously from open to closed field lines enables GSevolve to simulate full-discharge control from breakdown through plasma termination. GSevolve is compliant with the Plasma Control System Simulation Platform (PCSSP), a Matlab/Simulink®-based environment that serves as the primary framework for development of the ITER Plasma Control System (PCS). The code employs a novel response function-updating scheme to achieve fast simulations. The plasma evolves linearly until a significant shape change triggers a nonlinear update of the response while enforcing a prescribed accuracy. Old responses are recalled if the plasma changes back to an old shape. The equilibrium is a function of a state vector containing axisymmetric conductor currents and parameters related to parallel and perpendicular currents, which evolves according to an efficient state space circuit formulation. Control design and validation results are presented for simulations of DIII-D and EAST, connected to their corresponding versions of the DIII-D PCS.}
+}
 @article{BLUM,
   title = {Reconstruction of the Equilibrium of the Plasma in a {{Tokamak}} and Identification of the Current Density Profile in Real Time},
   author = {Blum, J. and Boulbe, C. and Faugeras, B.},
@@ -118,6 +171,20 @@ abstract = {A practical method for performing a tokamak equilibrium reconstructi
   doi = {10.1038/s42256-024-00844-4},
   abstract = {Neural operators map multiple functions to different functions, possibly in different spaces, unlike standard neural networks. Hence, neural operators allow the solution of parametric ordinary differential equations (ODEs) and partial differential equations (PDEs) for a distribution of boundary or initial conditions and excitations, but can also be used for system identification as well as designing various components of digital twins. We introduce the Laplace neural operator (LNO), which incorporates the pole--residue relationship between input--output spaces, leading to better interpretability and generalization for certain classes of problems. The LNO is capable of processing non-periodic signals and transient responses resulting from simultaneously zero and non-zero initial conditions, which makes it achieve better approximation accuracy over other neural operators for extrapolation circumstances in solving several ODEs and PDEs. We also highlight the LNO's good interpolation ability, from a low-resolution input to high-resolution outputs at arbitrary locations within the domain. To demonstrate the scalability of LNO, we conduct large-scale simulations of Rossby waves around the globe, employing millions of degrees of freedom. Taken together, our findings show that a pretrained LNO model offers an effective real-time solution for general ODEs and PDEs at scale and is an efficient alternative to existing neural operators.}
 }
+@article{KSTAR,
+  title = {The Design of the {{KSTAR}} Tokamak},
+  author = {Lee, G.S. and Kim, J. and Hwang, S.M. and Chang, C.S. and Chang, H.Y. and Cho, M.H. and Choi, B.H. and Kim, K. and Jardin, S. and Neilson, G.H. and Park, H.K. and Reiersen, W. and Schmidt, J. and Young, K. and Schultz, J. and Sevier, L. and Cho, S.Y. and Han, J.H. and Hur, N.I. and Im, K.H. and Kim, S. and Kim, J.Y. and Kyum, M.C. and Lee, B.J. and Lee, D.K and Lee, S.G. and Yang, H.L. and Hong, B.G. and Hwang, Y.S. and Kim, S.H. and Kim, Y.J. and Lim, J.Y. and Namkung, W. and Chung, K.H. and Choi, D.I.},
+  year = 1999,
+  journal = {Fusion Engineering and Design},
+  volume = {46},
+  number = {2},
+  pages = {405--411},
+  issn = {0920-3796},
+  doi = {10.1016/S0920-3796(99)00032-0},
+  abstract = {The Korea Superconducting Tokamak Advanced Research (KSTAR) Project is the major effort of the Korean National Fusion Program (KNFP) to develop a steady-state-capable advanced superconducting tokamak to establish a scientific and technological basis for an attractive fusion reactor. Major parameters of the tokamak are: major radius 1.8 m, minor radius 0.5 m, toroidal field 3.5 Tesla, and plasma current 2 mA with a strongly shaped plasma cross-section and double-null divertor. The initial pulse length provided by the poloidal magnet system is 20 s, but the pulse length can be increased to 300 s through non-inductive current drive. The plasma heating and current drive system consists of neutral beam, ion cyclotron waves, lower hybrid waves, and electron--cyclotron waves for flexible profile control. A comprehensive set of diagnostics is planned for plasma control and performance evaluation and physics understanding. The project has completed its conceptual design phase and moved to the engineering design phase. The target date of the first plasma is set for year 2002.},
+  keywords = {Fusion reactor,KSTAR project,Superconducting tokamak}
+}
+
 @article{gsdeepnet,
   title = {{{GS-DeepNet}}: Mastering Tokamak Plasma Equilibria with Deep Neural Networks and the {{Grad}}--{{Shafranov}} Equation},
   author = {Joung, Semin and Ghim, Y.-C. and Kim, Jaewook and Kwak, Sehyun and Kwon, Daeho and Sung, C. and Kim, D. and Kim, Hyun-Seok and Bak, J. G. and Yoon, S. W.},
@@ -130,6 +197,20 @@ abstract = {A practical method for performing a tokamak equilibrium reconstructi
   issn = {2045-2322},
   doi = {10.1038/s41598-023-42991-5},
   abstract = {The force-balanced state of magnetically confined plasmas heated up to 100 million degrees Celsius must be sustained long enough to achieve a burning-plasma state, such as in the case of ITER, a fusion reactor that promises a net energy gain. This force balance between the Lorentz force and the pressure gradient force, known as a plasma equilibrium, can be theoretically portrayed together with Maxwell's equations as plasmas are collections of charged particles. Nevertheless, identifying the plasma equilibrium in real time is challenging owing to its free-boundary and ill-posed conditions, which conventionally involves iterative numerical approach with a certain degree of subjective human decisions such as including or excluding certain magnetic measurements to achieve numerical convergence on the solution as well as to avoid unphysical solutions. Here, we introduce GS-DeepNet, which learns plasma equilibria through solely unsupervised learning, without using traditional numerical algorithms. GS-DeepNet includes two neural networks and teaches itself. One neural network generates a possible candidate of an equilibrium following Maxwell's equations and is taught by the other network satisfying the force balance under the equilibrium. Measurements constrain both networks. Our GS-DeepNet achieves reliable equilibria with uncertainties in contrast with existing methods, leading to possible better control of fusion-grade plasmas.}
+}
+
+@article{turbulent,
+  title={Fast modeling of turbulent transport in fusion plasmas using neural networks},
+  volume={27},
+  ISSN={1089-7674},
+  url={http://dx.doi.org/10.1063/1.5134126},
+  DOI={10.1063/1.5134126},
+  number={2},
+  journal={Physics of Plasmas},
+  publisher={AIP Publishing},
+  author={van de Plassche, K. L. and Citrin, J. and Bourdelle, C. and Camenen, Y. and Casson, F. J. and Dagnelie, V. I. and Felici, F. and Ho, A. and Van Mulders, S. and },
+  year={2020},
+  month=Feb
 }
 
 @ARTICLE{NNFB,
@@ -180,7 +261,7 @@ abstract = {A practical method for performing a tokamak equilibrium reconstructi
   file = {C\:\\Users\\ashould\\Zotero\\storage\\V5YIBZ6N\\Kaltsas and Throumoulopoulos - 2022 - Neural network tokamak equilibria with incompressible flows.pdf;C\:\\Users\\ashould\\Zotero\\storage\\GSMC3MTT\\2109.html}
 }
 
-@article{SPECTRAL,
+@article{SPECTRAL2,
   title = {A Mimetic Spectral Element Solver for the {{Grad}}--{{Shafranov}} Equation},
   author = {Palha, A. and Koren, B. and Felici, F.},
   year = 2016,
@@ -241,6 +322,37 @@ URL = {https://doi.org/10.1137/24M1674108},
 eprint = {https://doi.org/10.1137/24M1674108},
 abstract = { Abstract. Equilibria in magnetic confinement devices result from force balancing between the Lorentz force and the plasma pressure gradient. In an axisymmetric configuration like a tokamak, such an equilibrium is described by an elliptic equation for the poloidal magnetic flux, commonly known as the Grad–Shafranov equation. It is challenging to develop a scalable and accurate free-boundary Grad–Shafranov solver, since it is a fully nonlinear optimization problem that simultaneously solves for the magnetic field coil current outside the plasma to control the plasma shape. In this work, we develop a Newton-based free-boundary Grad–Shafranov solver using adaptive finite elements and preconditioning strategies. The free-boundary interaction leads to the evaluation of a domain-dependent nonlinear form of which its contribution to the Jacobian matrix is achieved through shape calculus. The optimization problem aims to minimize the distance between the plasma boundary and specified control points while satisfying two nontrivial constraints, which correspond to the nonlinear finite element discretization of the Grad–Shafranov equation and a constraint on the total plasma current involving a nonlocal coupling term. The linear system is solved by a block factorization, and AMG is called for subblock elliptic operators. The unique contributions of this work include the treatment of a global constraint, preconditioning strategies, nonlocal reformulation, and the implementation of adaptive finite elements. It is found that the resulting Newton solver is robust, successfully reducing the nonlinear residual to 1e-6 and lower in a small handful of iterations while addressing the challenging case to find a Taylor state equilibrium where conventional Picard-based solvers fail to converge. Reproducibility of computational results.This paper has been awarded the “SIAM Reproducibility Badge: Code and data available” as a recognition that the authors have followed reproducibility principles valued by SISC and the scientific computing community. Code and data that allow readers to reproduce the results in this paper are available at https://github.com/mfem/mfem/tree/tds-gs and in the supplementary materials (mfem-tds-gs.zip [18.0MB]). }
 }
+@article{fem,
+  title = {{{CRATOS-GS}}: {{A}} Free-Boundary, Hierarchical Adaptive Mesh Refinement {{Grad}}--{{Shafranov}} Solver},
+  shorttitle = {{{CRATOS-GS}}},
+  author = {Farmakalides, A. and Nikiforakis, N. and Millmore, S. and Romanelli, M. and Buxton, P. F.},
+  year = 2025,
+  month = sep,
+  journal = {AIP Advances},
+  volume = {15},
+  number = {9},
+  pages = {095128},
+  issn = {2158-3226},
+  doi = {10.1063/5.0285053},
+  urldate = {2026-01-28},
+  abstract = {We present CRATOS-GS, a free-boundary hierarchical adaptive mesh refinement (AMR) Grad--Shafranov solver, discretized on Cartesian meshes. The solver is suitable for stand-alone equilibrium calculations, as a foundational component of reduced modeling, and also as an integrated component of non-linear extended magnetohydrodynamic codes. The solver employs a geometric multigrid method to efficiently solve the underlying elliptic system for static inverse as well as forward problems. It supports a wide range of physics-based and geometric constraints, including optional plasma shape features (X-points, iso-flux surfaces, and fixed flux points), equilibrium properties (total plasma current and a choice of poloidal beta or central pressure), and multiple choices for defining coil connections and current bounds. The plasma region is delineated by a fast-marching algorithm, and a level-set function is used to define the arbitrarily complex geometry of the first wall, which allows for efficient calculation of limited plasma profiles. In addition, toroidal rotation is supported for spatially varying velocity fields, which enables the effects of real operational conditions, such as neutral beam injection, to be taken into account in the equilibrium state. In order to ensure reliable convergence, particularly for the forward problem, a vertical stabilization technique is implemented. CRATOS-GS is validated by means of a comprehensive suite of benchmarks, including fixed-boundary problems with analytic solutions and free-boundary case studies for realistic reactor configurations. Additional benchmarks are used to assess the efficacy of AMR in capturing steep gradients while reducing computational costs compared to unigrid calculations.},
+  langid = {english},
+  file = {C:\Users\ashould\Zotero\storage\IQADAD7G\Farmakalides et al. - 2025 - CRATOS-GS A free-boundary, hierarchical adaptive mesh refinement Grad–Shafranov solver.pdf}
+}
+@article{spectral1,
+  title = {Solving the {{Grad}}--{{Shafranov}} Equation with Spectral Elements},
+  author = {Howell, E.C. and Sovinec, C.R.},
+  year = 2014,
+  journal = {Computer Physics Communications},
+  volume = {185},
+  number = {5},
+  pages = {1415--1421},
+  issn = {0010-4655},
+  doi = {10.1016/j.cpc.2014.02.008},
+  abstract = {The development of a generalized two dimensional MHD equilibrium solver within the nimrod framework [Sovinec, et al., J. Comput. Phys. 195 (2004) 355] is discussed. Spectral elements are used to represent the poloidal plane. To permit the generation of spheromak and other compact equilibria, special consideration is given to ensure regularity at the geometric axis (R=0). The scalar field {$\Lambda$}={$\psi$}/R2 is used as the dependent variable to express the Grad--Shafranov operator as a total divergence. With the correct gauge, regularity along the geometric axis is satisfied. The convergence properties of the spectral elements are investigated by comparing numerically generated equilibria against known analytic solutions. Equilibria accurate to double precision error are generated with sufficient resolution. Depending on the equilibrium, either geometric or algebraic convergence is observed as the polynomial degree of the spectral-element basis is increased.},
+  keywords = {Compact torus,Grad-Shafranov,Magnetohydrodynamic equilibrium,Spectral element}
+}
+
 @article{jeon,
   title = {Development of a Free Boundary {{Tokamak Equilibrium Solver}} ({{TES}}) for {{Advanced Study}} of {{Tokamak Equilibria}}},
   author = {Jeon, Y. M.},
@@ -534,13 +646,14 @@ series = {NIPS '20}
   urldate = {2026-06-12},
   file = {C:\Users\ashould\Zotero\storage\LY3M6K6A\Zheng et al. - 1996 - Analytical tokamak equilibrium for shaped plasmas.pdf}
 }
-@article{propagation,
-title={ProPINN: Demystifying Propagation Failures in Physics Informed Neural Networks},
-author={Anonymous},
-journal={Submitted to Transactions on Machine Learning Research},
-year={2026},
-url={https://openreview.net/forum?id=Wy54lrFd46},
-note={Under review}
+@misc{propagation,
+      title={ProPINN: Demystifying Propagation Failures in Physics-Informed Neural Networks}, 
+      author={Haixu Wu and Yuezhou Ma and Hang Zhou and Huikun Weng and Jianmin Wang and Mingsheng Long},
+      year={2025},
+      eprint={2502.00803},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2502.00803}, 
 }
 @inproceedings{R3,
 author = {Daw, Arka and Bu, Jie and Wang, Sifan and Perdikaris, Paris and Karpatne, Anuj},
