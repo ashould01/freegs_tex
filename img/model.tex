@@ -88,17 +88,25 @@
 \draw[flow] (psib.east) -| (sum);
 \draw[flow] (sum) -- (out);
 
-% ============ GROUP BACKGROUNDS ============
+% ============ GROUP BACKGROUNDS (equal width, full coverage) ============
 \begin{scope}[on background layer]
-  \node[draw=resInk!35, fill=resInk!4, rounded corners=6pt, inner sep=9pt,
-        fit=(src)(branch)(dec)(psir)] (gres) {};
-  \node[draw=bndInk!35, fill=bndInk!5, rounded corners=6pt, inner sep=9pt,
-        fit=(qry)(val)(attn)(decb)(psib)] (gpin) {};
+  % common horizontal extent over BOTH lanes
+  \node[fit=(src)(crd)(branch)(trunk)(dec)(psir)(qry)(key)(val)(attn)(decb)(psib),
+        inner xsep=10pt, inner ysep=0pt] (gall) {};
+  % per-lane vertical extent (top box now includes crd & trunk)
+  \node[fit=(src)(crd)(branch)(trunk)(dec)(psir), inner sep=9pt] (gtop) {};
+  \node[fit=(qry)(key)(val)(attn)(decb)(psib),     inner sep=9pt] (gbot) {};
+  \coordinate (topNW) at (gall.west |- gtop.north);
+  \coordinate (topSE) at (gall.east |- gtop.south);
+  \coordinate (botNW) at (gall.west |- gbot.north);
+  \coordinate (botSE) at (gall.east |- gbot.south);
+  \draw[draw=resInk!35, fill=resInk!4, rounded corners=6pt] (topNW) rectangle (topSE);
+  \draw[draw=bndInk!35, fill=bndInk!5, rounded corners=6pt] (botNW) rectangle (botSE);
 \end{scope}
 \node[anchor=south west, font=\small\bfseries, text=resInk]
-  at ([xshift=5pt,yshift=2.5pt]gres.north west) {PI-DeepONet\ \ \small\mdseries(residual part $\mathcal{N}_r$)};
+  at ([xshift=6pt,yshift=2.5pt]topNW) {PI-DeepONet\ \ \small\mdseries(residual part $\mathcal{N}_r$)};
 \node[anchor=north west, font=\small\bfseries, text=bndInk]
-  at ([xshift=5pt,yshift=-2.5pt]gpin.south west) {PINTO\ \ \small\mdseries(boundary part $\mathcal{N}_b$)};
+  at ([xshift=6pt,yshift=-2.5pt]botSE-|topNW) {PINTO\ \ \small\mdseries(boundary part $\mathcal{N}_b$)};
 
 % caption note
 \node[anchor=east, font=\scriptsize\itshape, text=black!55, align=right] at (18.9,-1.15)
