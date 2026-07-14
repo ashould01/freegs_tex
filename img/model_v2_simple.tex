@@ -1,0 +1,98 @@
+% ============================================================================
+% FreeGSNO model diagram  ---  v2_simple (clean/pretty, paper notation kept)
+% Regenerate:  pdflatex -output-directory=img img/model_v2_simple.tex   (from repo root)
+% ============================================================================
+\documentclass[border=8pt]{standalone}
+\usepackage{mathptmx}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+
+\definecolor{resInk}{RGB}{38,84,150}
+\definecolor{resBg}{RGB}{234,241,251}
+\definecolor{bndInk}{RGB}{176,86,0}
+\definecolor{bndBg}{RGB}{253,241,226}
+\definecolor{outInk}{RGB}{31,122,77}
+\definecolor{outBg}{RGB}{230,245,236}
+\definecolor{ioInk}{RGB}{80,80,80}
+\definecolor{ioBg}{RGB}{244,244,242}
+
+\begin{document}
+\begin{tikzpicture}[
+  font=\small,
+  io/.style   ={draw=ioInk!70, fill=ioBg, rounded corners=2pt, align=center,
+                minimum height=9mm, inner xsep=5pt, inner ysep=3pt, text=black!85},
+  bnet/.style ={draw=resInk, line width=.7pt, fill=resBg, rounded corners=3pt, align=center,
+                minimum height=12mm, minimum width=26mm, inner sep=4pt, text=resInk!85!black},
+  onet/.style ={draw=bndInk, line width=.7pt, fill=bndBg, rounded corners=3pt, align=center,
+                minimum height=12mm, minimum width=26mm, inner sep=4pt, text=bndInk!85!black},
+  merge/.style={draw=outInk, line width=.8pt, fill=outBg, circle, minimum size=9mm, inner sep=0pt},
+  outb/.style ={draw=outInk, line width=.8pt, fill=outBg, rounded corners=3pt, align=center,
+                minimum height=11mm, inner sep=6pt, text=outInk!85!black},
+  flow/.style ={-{Stealth[length=2.4mm,width=2mm]}, line width=.7pt, draw=black!60},
+  lab/.style  ={font=\scriptsize\itshape, text=black!60, inner sep=1.5pt},
+  qkv/.style  ={font=\scriptsize\itshape, text=bndInk!85!black, inner sep=1.5pt},
+]
+
+% ================= TOP LANE : PI-DeepONet (residual) =================
+\node[io] (src) at (0,6.5) {Source\\[-1pt]$S_D/S_{\mathrm{norm}}$};
+\node[io] (crd) at (0,4.7) {Coordinates\\[-1pt]$(R,Z)$};
+\node[bnet] (branch) at (4.0,6.5) {Branch (CNN)};
+\node[bnet] (trunk)  at (4.0,4.7) {Trunk (MLP)};
+\node[bnet, minimum width=32mm] (dec) at (8.7,5.6)
+  {Decoder MLP\\[1pt]\scriptsize$\psi_r^{(n)}=\mathcal{N}_r-H_r[\mathcal{N}_r]$};
+\node[io, draw=resInk!55, fill=resBg, text=resInk!85!black, minimum width=13mm]
+  (psir) at (12.6,5.6) {$\psi_r^{(n)}$};
+
+\draw[flow] (src) -- (branch);
+\draw[flow] (crd) -- (trunk);
+\draw[flow] (branch.east) -- ++(0.45,0) |- ($(dec.west)+(0,0.28)$) node[lab,pos=.72,above]{$b(S_D/S_{\mathrm{norm}})$};
+\draw[flow] (trunk.east)  -- ++(0.45,0) |- ($(dec.west)+(0,-0.28)$) node[lab,pos=.72,below]{$t(R,Z)$};
+\draw[flow] (dec) -- (psir);
+
+% ================= BOTTOM LANE : PINTO (boundary) =================
+\node[io] (qry) at (0,2.7) {Query $(R,Z)$};
+\node[io] (key) at (0,1.5) {Keys $\{(R_{b,i},Z_{b,i})\}_{i=1}^{N_b}$};
+\node[io] (val) at (0,0.3) {Values $\overline{\psi}(\cdot,\psi^{(n-1)})/\overline{\psi}_{\mathrm{norm}}$};
+
+\node[onet, minimum width=30mm, minimum height=20mm] (enc) at (4.6,1.5)
+  {Encoders (MLP)\\[1pt]\scriptsize$H_q^{(0)},H_k^{(0)},H_v^{(0)}$};
+\node[onet, minimum width=26mm, minimum height=20mm] (attn) at (8.7,1.5)
+  {MHA + MLP\\[1pt]\scriptsize$(\times 2$ layers$)$};
+\node[io, draw=bndInk!55, fill=bndBg, text=bndInk!85!black, minimum width=13mm]
+  (psib) at (12.6,1.5) {$\psi_b^{(n)}$};
+
+\draw[flow] (qry) -- ($(enc.west)+(0,0.62)$) node[qkv,pos=.6,above]{Q};
+\draw[flow] (key) -- ($(enc.west)+(0,0.0)$)  node[qkv,pos=.6,above]{K};
+\draw[flow] (val) -- ($(enc.west)+(0,-0.62)$) node[qkv,pos=.6,below]{V};
+\draw[flow] (enc) -- (attn);
+\draw[flow] (attn) -- (psib);
+
+% ================= MERGE =================
+\node[merge] (sum) at (14.5,3.55) {\large$+$};
+\node[outb, minimum width=25mm] (out) at (17.7,3.55)
+  {$\psi^{(n)}=\psi_r^{(n)}+\psi_b^{(n)}$};
+\draw[flow] (psir.east) -| (sum);
+\draw[flow] (psib.east) -| (sum);
+\draw[flow] (sum) -- (out);
+
+% ================= GROUP BOXES (equal width) =================
+\begin{scope}[on background layer]
+  \node[fit=(src)(crd)(branch)(trunk)(dec)(psir)(qry)(key)(val)(enc)(attn)(psib),
+        inner xsep=10pt, inner ysep=0pt] (gall) {};
+  \node[fit=(src)(crd)(branch)(trunk)(dec)(psir), inner sep=9pt] (gtop) {};
+  \node[fit=(qry)(key)(val)(enc)(attn)(psib),     inner sep=9pt] (gbot) {};
+  \coordinate (topNW) at (gall.west |- gtop.north);
+  \coordinate (topSE) at (gall.east |- gtop.south);
+  \coordinate (botNW) at (gall.west |- gbot.north);
+  \coordinate (botSE) at (gall.east |- gbot.south);
+  \draw[draw=resInk!35, fill=resInk!4, rounded corners=6pt] (topNW) rectangle (topSE);
+  \draw[draw=bndInk!35, fill=bndInk!5, rounded corners=6pt] (botNW) rectangle (botSE);
+\end{scope}
+\node[anchor=south west, font=\small\bfseries, text=resInk]
+  at ([xshift=6pt,yshift=2.5pt]topNW) {PI-DeepONet\ \ \small\mdseries(residual part $\mathcal{N}_r$)};
+\node[anchor=north west, font=\small\bfseries, text=bndInk]
+  at ([xshift=6pt,yshift=-2.5pt]botSE-|topNW) {PINTO\ \ \small\mdseries(boundary part $\mathcal{N}_b$)};
+
+\end{tikzpicture}
+\end{document}
