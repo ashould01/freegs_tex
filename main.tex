@@ -32,6 +32,7 @@ grestore
 \usepackage{algorithmic}
 %
 \usepackage{mathptmx}      % use Times fonts if available on your TeX system
+
 %
 % insert here the call for the packages your document requires
 %\usepackage{latexsym}
@@ -70,6 +71,7 @@ grestore
   \at Department of Mathematical Science, Seoul National University, \\
   1, Gwanak-ro, Gwanak-gu, Seoul, Republic of Korea \\
   \email{ahn40200393@snu.ac.kr}
+  \and
   Kwang Il You 
   \at Korea Institute of Fusion Energy, 
   169-148, Gwahak-ro, Yuseong-gu, Daejeon, 34133, Rep. of Korea
@@ -78,7 +80,7 @@ grestore
   \at Department of Mathematical Science, Seoul National University, \\
   1, Gwanak-ro, Gwanak-gu, Seoul, Republic of Korea \\
   \and
-  Jououng Hahn 
+  Jooyoung Hahn 
   \at Trojanova 339/13 120 00 Prague, Czech Republic \\
   \email{jooyoung.hahn@fjfi.cvut.cz}
 }
@@ -91,23 +93,30 @@ grestore
 
 \begin{abstract}
   The Grad-Shafranov equation describes the steady-state ideal magnetohydrodynamic 
-  (MHD) equilibrium of a plasma under the assumption of axisymmetry, used to model 
-  a steady-state plasma equilibrium in tokamak devices. 
+  (MHD) equilibrium of a plasma under the assumption of axisymmetry, and 
+  it is a fundamental tool for modeling the plasma equilibrium in tokamaks. 
+  It is a nonlinear elliptic partial differential equation (PDE) whose source term and boundary condition
+  are determined by the solution itself, so the solution process needs to solve 
+  the linear one-step Grad-Shafranov equation iteratively until convergence.
   This study introduces a physics-informed neural operator framework 
   for solving the free-boundary Grad-Shafranov equation, 
-  a nonlinear elliptic partial differential equation (PDE)
   whose source term and boundary condition are determined by the solution itself.
   First, we decompose the Grad-Shafranov equation into two sub-problems
-  and train two neural operators independently, 
+  and train two neural operators independently,
   using physics-informed loss functions without solution labels.
   Next, we combine their outputs to obtain the full solution of the 
   one-step Grad-Shafranov equation.
   This model is then integrated into an existing iterative Grad-Shafranov solver,
-  to assess whether the solver-in-the-loop surrogate converges to an accurate equilibrium.
-  Validation on the Solov'ev equilibrium and MAST-U tokamak equilibria 
-  shows that the proposed method can provide accurate poloidal flux 
+  and the solver-in-the-loop surrogate converges to an accurate equilibrium.
+  Validation on the Solov'ev equilibrium 
+  shows that the proposed method provides accurate poloidal flux with 
+  mean RMSE error of $1.329\times 10^{-3}$.
+  Also, validation on MAST-U tokamak equilibria 
+  shows that the proposed method converges to the similar poloidal flux as the conventional solver
+  with similar iteration steps,
   for both diverted and limited plasma configurations,
-  and reproduce physically relevant equilibrium quantities.
+  and reproduce physically relevant equilibrium quantities, with some out-of-distribution
+  cases.
 \keywords{Plasma equilibrium \and Physics-informed Neural Operators \and Grad-Shafranov equation}
 \subclass{76W05 \and 68T07 \and 65J15}
 \end{abstract}
@@ -163,8 +172,8 @@ equilibrium solves under varying plasma parameters, coil currents, and boundary 
 These considerations motivate the development of fast surrogate models 
 that can accelerate repeated equilibrium computation while retaining physical consistency.
 In particular, neural networks have recently emerged as 
-promising tools for scientific computing, 
-and they have been applied to various problems involving expensive science
+promising tools for accelerating scientific computing, \cite{deeponetspeedup}
+and they have been applied to various problems involving expensive scientific
 simulations, including plasma physics and tokamak simulations.
 
 For example, van de Plassche et al. \cite{turbulent} built a neural-network surrogate model 
@@ -180,7 +189,7 @@ because it does not guarantee the satisfaction of the Grad-Shafranov equation,
 and it may not generalize reliably when the boundary configuration 
 or current-density profile is out of the training distribution. 
 
-In this work, we propose FreeGSNO, a physics-informed neural-operator framework 
+In this work, we propose FreeGSNO, a physics-informed differentiable neural-operator framework 
 for solving the free-boundary Grad-Shafranov equation. 
 The key idea is not to replace the entire equilibrium solver by a one-shot predictor, 
 but to learn the one-step solution operator that appears inside the 
@@ -215,10 +224,14 @@ compared with the reference numerical solver.
 The results demonstrate that the proposed method can approximate the poloidal flux and 
 reproduce physically important equilibrium quantities such as the magnetic axis, 
 X-point, and plasma boundary. 
-Also, the proposed method is slightly faster than the FreeGSNKE solver
-for solving the one-step Grad-Shafranov equation.
-These experiments indicate that physics-informed neural operators can provide 
-a promising route toward fast and physically consistent Grad-Shafranov equilibrium computation.
+On the one-step solve, the learned neural operator runs natively on GPU with
+microsecond-scale inference, and it is comparable in wall-clock time to the FreeGSNKE solver.
+We note that a full equilibrium reconstruction runtime advantage is not yet demonstrated,  
+since the auxiliary module still runs on CPU.
+These experiments indicate that if the auxiliary modules become GPU-native, then
+physics-informed neural operators can provide 
+a promising route toward fast, differentiable and physically consistent 
+Grad-Shafranov equilibrium computation.
 
 Our contribution is summarized as follows:
 \begin{itemize}
@@ -231,9 +244,9 @@ Our contribution is summarized as follows:
   \item We validate the proposed method on the Solov'ev equilibrium and MAST-U
   free-boundary equilibrium, and we show that the proposed method can provide
   accurate poloidal flux and reproduce physically relevant equilibrium quantities.
-  \item Our solver is slightly faster than the FreeGSNKE solver for solving the 
-  one-step Grad-Shafranov equation, so the proposed method has the potential to
-  accelerate the computation of the Grad-Shafranov equation.
+  \item The learned operator is GPU-native with
+  microsecond-scale one-step inference. This GPU-native execution
+  are the key enablers of the future batched equilibrium solving. 
 \end{itemize}
 
 This paper is constructed as follows: Section~\ref{sec:2} summarizes related work 
@@ -304,8 +317,10 @@ therefore they can predict various solutions with various
 input functions without retraining the model.
 On the other hand, compared with purely data-driven neural operators, 
 physics-informed neural operators incorporate
-PDE residuals and boundary conditions during training, hence the training process 
-does not require labeled data, and it can generalize better to unseen scenarios.
+PDE residuals and boundary conditions during training, hence the training process
+does not require labeled data. Moreover, because the residual can be evaluated at
+inference without labels, the correctness of a prediction is verifiable a
+posteriori, which a purely data-driven surrogate cannot provide.
 In particular, \cite{PINTO} proposed a physics-informed neural transformer operator (PINTO), 
 which is a transformer-based neural operator architecture with a physics-informed loss function.
 It can learn the solution operator of PDEs with various boundary value functions, and 
@@ -314,7 +329,7 @@ it was shown to outperform the previous neural operator architectures in various
 \subsection{Predicting Plasma Equilibrium with Neural Networks}
 
 Successful applications of neural networks to predict the plasma equilibrium 
-\cite{bonotto,gsdeepnet,JangPINN,multistagePINN,summaryNOGS,NNGS,NNFB,PINNFNOGS} has been reported.
+\cite{bonotto,gsdeepnet,JangPINN,multistagePINN,summaryNOGS,NNGS,NNFB,PINNFNOGS,Degrave2022,Seo2024} has been reported.
 Real-time plasma equilibrium reconstruction is important 
 for controlling the plasma shape in tokamaks,
 and neural networks can serve as fast surrogates or auxiliary models
@@ -418,7 +433,7 @@ as follows:
   J_{\te{p}, \phi}(R, Z; \psi) = \begin{cases}
   \begin{aligned}
   & R p'(\psi)(R, Z) + \\
-  & \quad \frac{1}{R} \left(F(\psi)F'(\psi)\right)(R, Z)
+  & \quad \frac{1}{\mu_0 R} \left(F(\psi)F'(\psi)\right)(R, Z)
   \end{aligned} &  (R, Z) \in \Omega_p \\
   0 & (R, Z) \in \Omega \setminus \Omega_p
 \end{cases}, \end{align}
@@ -542,7 +557,7 @@ Let $\cal{F}$ be the one-step solution operator, defined by
 \end{align} 
 where $\psi^{(n)}$ is the solution of the one-step Grad-Shafranov equation \eqref{eq:5} with 
 $J_\phi(\cdot ; \psi^{(n-1)})$ and $\psi_{\text{bdry}}^{(n-1)}$.
-Then its fixed point is the exact solution for the Grad-Shafranov equation.
+Then its fixed point is an exact solution for the Grad-Shafranov equation.
 
 Several numerical methods can be used to solve the one-step Grad-Shafranov equation.
 Since in most cases the computational domain $\Omega$ is the extended area of the 
@@ -569,8 +584,9 @@ We serve details of the Jacobian-free Newton-Krylov method are provided in Appen
 Our method is designed to serve as a neural surrogate 
 for the numerical solver, to replace the operator $\cal{F}$ 
 both in the fixed-point iteration and in the Jacobian-free Newton-Krylov method.
-Also we compute the time consumption of solving the one-step Grad-Shafranov equation
-with the neural operator, and we show the possibility that the procedure can be accelerated.
+We compare the performance between the numerical method
+and the neural operator, and we compute the time consumption of solving the one-step Grad-Shafranov equation
+with the neural operator. 
 
 \subsection{Physics-Informed Neural Operators}
 
@@ -701,12 +717,12 @@ i.e.,
 and then the attention is computed with the above formula;
 \begin{align*}
   &Q_h = (H_q^{(0)}) W_h^Q \in \bb{R}^{1 \times p}, \\ 
-  &K_h = (H_{k, i}^{(0)}) W_h^K \in \bb{R}^{N \times p}, \\
-  &V_h = (H_{v, i}^{(0)}) W_h^V \in \bb{R}^{N \times p}, \\
+  &K_h = (H_{k}^{(0)}) W_h^K \in \bb{R}^{N \times p}, \\
+  &V_h = (H_{v}^{(0)}) W_h^V \in \bb{R}^{N \times p}, \\
   &\te{Attn}_h \left(H^{(0)}\right) = \te{softmax}\left(Q_h K_h^\top / \sqrt{p}\right) V_h \in \bb{R}^{1 \times p}, \\
   &\mathrm{MHA}(H^{(0)}) = \mathrm{Concat}(\mathrm{Attn}_1, \ldots, \mathrm{Attn}_m) W^O \in \bb{R}^{1\times p},
 \end{align*}
-where $W_h^Q \in \bb{R}^{p \times d_k}$, $W_h^K \in \bb{R}^{p \times d_k}$, $W_h^V \in \bb{R}^{p \times d_v}$, and $W^O \in \bb{R}^{mp \times p}$ are learnable parameters, and $\te{Concat}$ is the concatenation operation.
+where $W_h^Q \in \bb{R}^{p \times p}$, $W_h^K \in \bb{R}^{p \times p}$, $W_h^V \in \bb{R}^{p \times p}$, and $W^O \in \bb{R}^{mp \times p}$ are learnable parameters, and $\te{Concat}$ is the concatenation operation.
 
 To obtain the next layer input $H^{(1)}$, the small MLP layer with a skip connection is used:
 \[ H^{(1)} = \te{MLP}\left(H_q^{(0)} + MHA(H^{(0)})\right) \in \bb{R}^{1 \times p},\]
@@ -799,7 +815,7 @@ Then we renormalize the output to obtain the final result;
 \[ \cal{N}_r[\psi^{(n-1)}](R, Z) = S_{\te{norm}}\te{MLP}_{\te{d}}
 (b(S_D / S_{\te{norm}}), t(R, Z)) \in \bb{R}. \]
 We note that because the differential operator $\Delta^*$ is linear, 
-the multiplication and division to both sides of equations \eqref{eq:9} and \eqref{eq:10} 
+the multiplication and division to both sides of equations \eqref{eq:9} 
 by the normalization constant $S_{\te{norm}}$ does not affect the solution of the PDE.
 
 To train this model, we impose the boundary condition using the hard-constraint formulation.
@@ -813,7 +829,7 @@ $\psi_r$ is obtained by
   \psi_r^{(n)}(R, Z) = \cal{N}_r[\psi^{(n-1)}](R, Z) - H_r[\cal{N}_r[\psi^{(n-1)}]](R, Z),
 \end{align*}
 where $H_r[v]: \Omega \to \bb{R}$ is a lifting function whose values match
-those of $\cal{N}_r[v]$ on $\partial \Omega$,
+those of $\cal{N}_r[v]$ on $\partial \Omega$ keeping the same smoothness as $\cal{N}_r[v]$ in $\Omega$.
 and hence $\psi_r^{(n)}$ automatically satisfies the zero-boundary condition. 
 Then we only need to minimize the residual loss
 \[ L(\theta) = \frac{1}{N}\sum_{i=1}^N \int_\Omega |\Delta^* \psi_r^{(n)}(R, Z)+ \mu_0 R J_\phi(R, Z; \psi^{(n-1)})|^2 dR dZ. \]
@@ -833,7 +849,8 @@ on the boundary $\partial \Omega$, and let
   \overline{\psi}(R_{N_b}, Z_{N_b}; \psi^{(n-1)}) \right]
 \end{align*}
 We also normalize the boundary values by dividing by the normalization constant 
-$\overline{\psi}_{\te{norm}}$, which is similarly defined as $S_{\te{norm}}$ for the source term.
+$\overline{\psi}_{\te{norm}}=\max \overline{\psi}_D - \min \overline{\psi}_D$, 
+which is similarly defined as $S_{\te{norm}}$.
 Then we provide $(R, Z)$, $\overline{X}_{D}$ 
 and $\frac{\overline{\psi}_{D}}{\overline{\psi}_{\te{norm}}}$ 
 as the query, keys and values, respectively, to evaluate $\psi_b^{(n)}(R, Z)$.
@@ -845,12 +862,17 @@ We have
 \end{align*}
 To train PINTO, we use the weighted version of the loss function defined in \eqref{eq:7}. 
 Finally, the approximate solution is $\hat{\psi}^{(n)} = \hat{\psi}_r^{(n)} + \hat{\psi}_b^{(n)}$.
+To summarize, combination of the two different neural operators serves as a 
+solver-in-the-loop role for the Grad-Shafranov equation,
+and each neural operator is trained separately by the physics-informed approach, 
+without access to the solution of the PDE.
+
 Figure~\ref{fig:integrated} displays the structure of the integrated version of the PI-DeepONet
 and the PINTO for solving the one-step Grad-Shafranov equation.
 
 \begin{figure*}
   \centering
-  \includegraphics[width=0.95\linewidth]{img/model.png}
+  \includegraphics[width=0.95\linewidth]{img/model.pdf}
   \caption{
     The proposed neural operator model learns 
     to solve the one-step Grad-Shafranov equation. 
@@ -919,7 +941,8 @@ We conduct several numerical experiments to validate the performance of FreeGSNO
 \subsection{Solov'ev equilibrium}
 
 Solov'ev equilibrium assumes that the toroidal current density does not depend on
-the poloidal flux $\psi$, and therefore it admits an analytical solution,
+the poloidal flux $\psi$, and the plasma boundary is also given. 
+Thus it is a fixed boundary problem and it admits an analytical solution,
 and this problem is widely used to validate numerical solvers.
 In this case, the Grad-Shafranov equation has a simple form of the toroidal 
 current density, 
@@ -1005,6 +1028,8 @@ for the boundary net.
 
 For testing, we sample 1,000 parameter tuples with the same distribution as the training set, 
 and we compute the absolute and relative $L^2$ error between the analytic solution and the predicted solution by the neural operators.
+We obtain the mean RMSE error of $1.329\times 10^{-3}$ and the mean relative $L^2$ error
+of $6.676 \times 10^{-2}$.
 Figure \ref{fig:1} shows the comparison of the analytic solution and 
 the predicted solution by the neural operators.
 We observe that the neural operators can predict the solution of the Grad-Shafranov equation with 
@@ -1019,8 +1044,8 @@ high accuracy, and it can capture the plasma boundary well.
   is the absolute error between the two solutions. The top row is $\psi$ and the middle row is the 
   result of the residual net $\psi_r$, and the bottom row is the result of the boundary net
   $\psi_b$. We obtain the absolute solution for $\psi_r$ and $\psi_b$ by customizing 
-  the conditions for the FreeGS solver. Here the physical parameters are $I_p = -15.76 MA$,
-  $\beta_p = 0.0816$.}
+  the conditions for the FreeGS solver. Here the physical parameters are $I_p = -2.93 MA$,
+  $\beta_p = 2.3564$.}
   \label{fig:1}
 \end{figure*}
 
@@ -1096,7 +1121,7 @@ and are therefore not functions of $p_{\text{axis}}$ and $I_p$,
 also $C$ is independent of $p_{\text{axis}}$ and $I_p$.
 
 Thus, we follow the example of the FreeGSNKE solver and
-we let $\beta_{\te{ratio}} = 0.22 \times 10^{-2} \te{Pa} / \te{kA}^2$.
+we let $\beta_{\te{ratio}} = 2.2 \times 10^{-2} \te{Pa} / \te{kA}^2$.
 Then we sample the parameters $(p_{\te{axis}}, I_p)$ from the 
 uniform distribution with 
 the range of $I_p \in [350\te{kA}, 650\te{kA}]$ and 
@@ -1130,11 +1155,20 @@ The training procedure for the neural operators is similar as the Solov'ev equil
 but the total epochs is 1,000 because the MAST-U dataset is larger than the Solov'ev equilibrium 
 case and convergence is observed within fewer epochs.
 Figure \ref{fig:loss} shows for the training loss histories
-of the residual net and the boundary net,
-and Table~\ref{tab:1} compares the value of $\psi$ and the location of the X-point,
+of the residual net and the boundary net.
+At the middle and end of the training, 
+we compare the predicted solution by the neural operators 
+and the solution by the numerical solver in FreeGSNKE for the test set.
+We obtain the mean RMSE error of $1.432 \times 10^{-4}$,
+and the mean relative $L^2$ error of $4.170 \times 10^{-3}$ for the test set,
+at the end of the training.
+
+For validation, we integrate the trained neural operators into the FreeGSNKE solver.
+Table~\ref{tab:1} compares the value of $\psi$ and the location of the X-point,
 plasma boundary value, and the value of $\psi$ and the location of the magnetic axis, 
 between the FreeGSNO and FreeGSNKE solvers for the MAST-U tokamak equilibrium 
-with different physical parameters $(p_{\text{axis}}, I_p)$. 
+with different physical parameters $(p_{\text{axis}}, I_p)$ including out-of-distribution 
+parameters.
 Also, Figure~\ref{fig:4} shows the comparison of the predicted solution by the neural operators and
 the solution by the FreeGSNKE solver.
 We observe that the neural operators, combined with the Jacobian-free Newton-Krylov method, 
@@ -1155,21 +1189,21 @@ the sparse LU decomposition is used to solve the linear system.
 CPU-GPU data transfer is not included in the elapsed time, i.e.,
 the toroidal current density $J_\phi$ data is already on the GPU memory 
 for the FreeGSNO solver.
-100 test samples are used iteratively 
-for the comparison in a run, and the average and standard deviation
-of the elapsed time for 10 runs are reported in Table~\ref{tab:2}.
-We observe that the FreeGSNO solver is slightly faster than the FreeGSNKE solver,
-so this shows that the neural operator model can be used as a fast and accurate solver
-for the Grad-Shafranov equation if some auxiliary modules such as
-the boundary value computation are implemented on GPU.
-
+In each run, the elapsed time is measured by sequentially processing 100 test samples.
+The mean and standard deviation over 10 runs are reported in Table~\ref{tab:2}.
+We observe that the per-solve wall-clock time of FreeGSNO is comparable to that
+of FreeGSNKE. We emphasize that this is not a controlled speedup measurement:
+FreeGSNO runs on GPU with JIT compilation and FreeGSNKE on CPU (without JIT compilation
+as a default implementation), and CPU--GPU
+transfer are excluded. We therefore read Table~\ref{tab:2} as a feasibility
+indication that a GPU-native neural inner solve incurs no slowdown.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.85\linewidth]{img/loss_graph.png}
   \caption{The training loss progress of the residual net and the boundary net 
   for the MAST-U tokamak equilibrium. Final training loss is 
-  $4.871 \times 10^{-2}$ for the residual net, and $7.841 \times 10^{-4}$ for the boundary net.}
+  $4.871 \times 10^{-3}$ for the residual net, and $7.841 \times 10^{-4}$ for the boundary net.}
   \label{fig:loss}
 \end{figure}
 
@@ -1206,6 +1240,13 @@ the boundary value computation are implemented on GPU.
     & FreeGSNKE & diverted & $3.3037\times 10^{-2}$ & $(0.646, -1.181)$ & 
     $3.3037 \times 10^{-2}$ & $1.1067 \times 10^{-1}$ & $(1.056, -0.000)$ & 27 & & \\
     \hline
+    \multirow{2}{*}{($12$ kPa, $550$ kA)} & 
+    FreeGSNO & diverted & $2.7623\times 10^{-2}$ & $(0.600, 1.070)$ & 
+    $2.7623\times 10^{-2}$ & $8.8375 \times 10^{-2}$ & $(0.972, 0.001)$ & 24 &
+    \multirow{2}{*}{$2.0947 \times 10^{-4}$} & \multirow{2}{*}{$1.0564 \times 10^{-4}$} \\
+    & FreeGSNKE & diverted & $2.7413\times 10^{-2}$ & $(0.597, -1.065)$ & 
+    $2.7413 \times 10^{-2}$ & $8.8269 \times 10^{-2}$ & $(0.965, -0.000)$ & 25 & & \\
+    \hline
     \multirow{2}{*}{($8$ kPa, $400$ kA)} & 
     FreeGSNO & limited & $1.8019\times 10^{-2}$ & $(0.469, -0.841)$ & 
     $2.1553\times 10^{-2}$ & $5.4939 \times 10^{-2}$ & $(0.700, -0.014)$ & 27 &
@@ -1213,17 +1254,42 @@ the boundary value computation are implemented on GPU.
     & FreeGSNKE & limited & $1.7664\times 10^{-2}$ & $(0.465, -0.831)$ & 
     $2.1404 \times 10^{-2}$ & $5.4635 \times 10^{-2}$ & $(0.702, -0.000)$ & 27 & & \\
     \hline
+    \multirow{2}{*}{($9$ kPa, $400$ kA)} & 
+    FreeGSNO & limited & $1.8050\times 10^{-2}$ & $(0.471, -0.842)$ & 
+    $2.1205\times 10^{-2}$ & $5.4866 \times 10^{-2}$ & $(0.710, -0.010)$ & 41 &
+    \multirow{2}{*}{$3.7052 \times 10^{-4}$} & \multirow{2}{*}{$-1.9294 \times 10^{-4}$} \\
+    & FreeGSNKE & limited & $1.8147\times 10^{-2}$ & $(0.476, -0.844)$ & 
+    $2.0834 \times 10^{-2}$ & $5.4635 \times 10^{-2}$ & $(0.727, 0.006)$ & 31 & & \\
+    \hline
+    \multirow{2}{*}{($8$ kPa, $350$ kA)} & 
+    FreeGSNO & limited & $1.8073\times 10^{-2}$ & $(0.471, -0.842)$ & 
+    $2.1221\times 10^{-2}$ & $5.4892 \times 10^{-2}$ & $(0.710, -0.012)$ & 33 &
+    \multirow{2}{*}{$1.0246 \times 10^{-4}$} & \multirow{2}{*}{$6.4388 \times 10^{-5}$} \\
+    & FreeGSNKE & limited & $1.7899\times 10^{-2}$ & $(0.471, -0.838)$ & 
+    $2.1118 \times 10^{-2}$ & $5.4828 \times 10^{-2}$ & $(0.714, -0.000)$ & 31 & & \\
+    \hline
+    \multirow{2}{*}{($4$ kPa, $600$ kA)} & 
+    FreeGSNO & diverted & $2.7327\times 10^{-2}$ & $(0.575, 1.065)$ & 
+    $2.7327\times 10^{-2}$ & $8.3149 \times 10^{-2}$ & $(0.881, 0.002)$ & 25 &
+    \multirow{2}{*}{$2.9064 \times 10^{-5}$} & \multirow{2}{*}{$-8.6021 \times 10^{-4}$} \\
+    & FreeGSNKE & diverted & $2.7298\times 10^{-2}$ & $(0.570, -1.065)$ & 
+    $2.7298 \times 10^{-2}$ & $8.4009 \times 10^{-2}$ & $(0.869, -0.000)$ & 24 & & \\
+    \hline
     \end{tabular}}%
   \end{adjustbox}
   \caption{
     Comparison of the results between the FreeGSNO and FreeGSNKE solvers for the 
     MAST-U tokamak equilibrium with different physical parameters $(p_{\text{axis}}, I_p)$. 
-    `Case' indicates whether the plasma is diverted or limited, X-point value and position 
+    `case' indicates whether the plasma is diverted or limited, X-point value and position 
     are the largest value of $\psi$ on X-points and its corresponding position,
     boundary value is the value of $\psi$ on the plasma boundary, 
     axis value and position are the value of $\psi$ on the magnetic axis and its position, and
     iteration is the sum of iterations for the fixed-point iteration and the Jacobian-free Newton-Krylov method, with the stopping criterion of $10^{-9}$ for the residual loss.
-    Lastly, $\Delta \overline{\psi}$ and $\Delta \psi_{\te{axis}}$ are the differences of the boundary value and the magnetic axis value between the two solvers.
+    Lastly, $\Delta \overline{\psi}$ and $\Delta \psi_{\te{axis}}$ are the differences of the boundary value and the magnetic axis value between the two solvers. 
+    Last three parameters are out-of-distribution parameters, each with 
+    $p_{\te{axis}} = 2.531 \beta_{\te{ratio}} I_p^2$, $p_{\te{axis}} =
+    2.939 \beta_{\te{ratio}} I_p^2$, and 
+    $p_{\te{axis}} = 0.5 \beta_{\te{ratio}} I_p^2$, respectively.
   }\label{tab:1}
 \end{table*}
 \begin{figure*}
@@ -1260,7 +1326,8 @@ the boundary value computation are implemented on GPU.
     Comparison of the elapsed time for computing the boundary value and the solution of the 
     Grad-Shafranov equation between the FreeGSNO and FreeGSNKE solvers.
     The average and standard deviation of the elapsed time for 10 runs are reported.
-    FreeGSNO speedups approximately $1.23$ times comparing to FreeGSNKE.
+    Note that FreegsNO is timed on GPU (with JIT compilation) and FreeGSNKE is timed on CPU
+    (without JIT compilation), and CPU--GPU transfer is excluded.
   }
   \label{tab:2}
 \end{table}
@@ -1269,8 +1336,8 @@ the boundary value computation are implemented on GPU.
 In this work, we propose FreeGSNO, a method that uses neural operators 
 to solve the free-boundary Grad-Shafranov equation.
 The proposed method is based on the decomposition of the solution into the residual part and the boundary part, and we use the PI-DeepONet for the residual part and the PINTO for the boundary part.
-We train the neural operators with only physics-informed loss functions, therefore
-our method does not require any labeled data, to expect the physically meaningful solution.
+We train the neural operators with only physics-informed loss functions,
+and thus our method requires no labeled solution data while still targeting a physically consistent solution.
 Then we combine the neural operators with the iteration method, 
 to solve the Grad-Shafranov equation in each iteration step.
 
@@ -1284,46 +1351,32 @@ traditional iteration method converges to a solution with high accuracy,
 with similar iterations and computation time.
 In particular, FreeGSNO captures the plasma boundary and the magnetic axis well,
 which is important for the equilibrium reconstruction problem in the tokamak device.
-
-The proposed method shows promising results; therefore we plan to 
-extend the method to the inverse problem and the evolutive problem, and we will
-conduct more experiments with different tokamak machines and different physical parameters.
-Although the current implementation does not yet demonstrate a runtime advantage over FreeGSNKE,
-the millisecond-scale inference time suggests that further optimization, 
-especially GPU implementation of auxiliary boundary-value computations, 
+Also, we show that the FreeGSNO solver infers with microsecond-scale per one-step solve;
+although the current implementation does not yet demonstrate a full iteration 
+runtime advantage over FreeGSNKE,
+further optimization, especially GPU implementation of auxiliary boundary-value computations, 
 may make the approach competitive for repeated equilibrium solves.
 
-
-% For one-column wide figures use
-% \begin{figure}
-% Use the relevant command to insert your figure file.
-% For example, with the graphicx package use
-  % \includegraphics{example.eps}
-% figure caption is below the figure
-% \caption{Please write your figure caption here}
-% \label{fig:1}       % Give a unique label
-% \end{figure}
-%
-% For two-column wide figures use
-%
-% For tables use
-% \begin{table}
-% % table caption is above the table
-% \caption{Please write your table caption here}
-% \label{tab:1}       % Give a unique label
-% % For LaTeX tables use
-% \begin{tabular}{lll}
-% \hline\noalign{\smallskip}
-% first & second & third  \\
-% \noalign{\smallskip}\hline\noalign{\smallskip}
-% number & number & number \\
-% number & number & number \\
-% \noalign{\smallskip}\hline
-% \end{tabular}
-% \end{table}
+Beyond wall-clock performance, FreeGSNO carries several forward-looking properties. 
+First, training is label-free: the operator is fit to the Grad-Shafranov residual itself, 
+removing any dependence on a pre-computed labeled equilibrium database. 
+Second, the operator-in-the-loop design replaces only the inner linear solve, 
+and leaves the nonlinear boundary determination module intact, 
+which makes the approach modular and portable to any FreeGSNKE-supported machine. 
+Third, the model is GPU-native and evaluates in microseconds, 
+so once the auxiliary boundary-value computation is moved to GPU, 
+batched and parallel equilibrium solving becomes feasible. 
+These properties, rather than a marginal single-solve timing, 
+constitute the contribution of this work.
+Therefore we plan to extend the method, first replacing to the auxiliary modules
+operates in CPU with GPU-native implementations, 
+and then considering the inverse problem and the evolutive problem, 
+and we will conduct more experiments with different tokamak machines with 
+different physical situations.
 
 \begin{acknowledgements}
-  ...
+  This work is supported by the National Research Foundation of Korea(NRF) grant funded by the Korea government(MSIT), (code No.RS-2024-00406127, RS-2026-25477522)
+  R\&D Program of "High Performance Tokamak Plasma Research \& Development(code No.EN2601-17)" through the Korea Institute of Fusion Energy(KFE) funded by the Government funds, Republic of Korea.
 \end{acknowledgements}
 
 \bibliographystyle{spmpsci}      % mathematics and physical sciences
@@ -1338,12 +1391,12 @@ may make the approach competitive for repeated equilibrium solves.
   set the constraint of the current $I_p$ and the pressure at the magnetic axis $p_{\te{axis}}$.
   Then $\lambda$ and $\beta_0$ are determined by solving the following equations:
   \begin{align*}
-    I^R &= \int_{\Omega_p} R \tilde{j}_p(\psi, \psi_{\te{o}}, \psi_{\te{x}})(R, Z) dR dZ, \\
-    I_R &= \int_{\Omega_p} \frac{1}{R} \tilde{j}_F(\psi, \psi_{\te{o}}, \psi_{\te{x}})(R, Z) dR dZ, \\
+    I^R &= \int_{\Omega_p} \frac{R}{R_{\te{geo}}} \tilde{j}_p(\psi, \psi_{\te{o}}, \psi_{\te{x}})(R, Z) dR dZ, \\
+    I_R &= \int_{\Omega_p} \frac{R_{\te{geo}}}{R} \tilde{j}_F(\psi, \psi_{\te{o}}, \psi_{\te{x}})(R, Z) dR dZ, \\
     S &= \frac{p_{\te{axis}} R_{\te{geo}}\alpha_m}
     {B\left(\frac{1}{\alpha_m}, 1 + \alpha_n\right)(\psi_{\te{x}} - \psi_{\te{o}})}, \\
-    \lambda &= \frac{I_p}{I_R} + \frac{p_{\te{axis}} R_{\te{geo}}}{S} \frac{I^R}{I_R - 1}, \\
-    \beta_0 &= -\frac{p_{\te{axis}} R_{\te{geo}}}{S}.
+    \lambda &= \frac{I_p}{I_R} + S \frac{I^R}{I_R - 1}, \\
+    \beta_0 &= -\frac{S}{\lambda}.
   \end{align*}
 
   The normalized pressure and toroidal field profiles are defined as follows:
@@ -1413,8 +1466,7 @@ may make the approach competitive for repeated equilibrium solves.
   Hence above operator $\cal{G}$ corresponds to $\cal{I} - \cal{F}$, 
   where $\cal{I}$ is the identity operator.
   We emphasize that we use our neural operator model repeatedly
-  to build the Krylov subspace $\cal{K}_d$, and there is a possibility that 
-  the speed of the neural operator is faster than the original FreeGSNKE solver.
+  to build the Krylov subspace $\cal{K}_d$.
 
 \end{appendix}
 
