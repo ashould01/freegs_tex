@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1784049370.79268 "main.aux" "main.bbl" "main" 1784049379.64923 0
+["bibtex main"] 1784049370.79268 "main.aux" "main.bbl" "main" 1784049476.40181 0
   "./ref.bib" 1784049127.73742 76130 8720bc4962606067715251c0b537da1d ""
   "./spmpsci.bst" 1780643946.35894 30130 0182c69465c28ddbb1f8698b9c5c1559 ""
-  "main.aux" 1784049379.16458 18983 96861c0327c31333ac7ecef824b1885a "pdflatex"
+  "main.aux" 1784049475.98023 18983 96861c0327c31333ac7ecef824b1885a "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1784049370.99892 "/data1/home/ahn40200393/TEX/freegsdeep/main.tex" "main.pdf" "main" 1784049379.64982 0
-  "/data1/home/ahn40200393/TEX/freegsdeep/main.tex" 1784049361.84064 83890 4deaf52266c3498f4dee0dff8115d6c0 ""
+["pdflatex"] 1784049467.65257 "/data1/home/ahn40200393/TEX/freegsdeep/main.tex" "main.pdf" "main" 1784049476.40211 0
+  "/data1/home/ahn40200393/TEX/freegsdeep/main.tex" 1784049467.35226 83891 018ab004ee21757629629f8e694fc4fb ""
   "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/tfm/adobe/symbol/psyr.tfm" 1136768653 1408 5937f58aa508ea2cea4901c07d10f5fe ""
@@ -37,6 +37,13 @@
   "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb" 1248133631 24287 6b803fa9eb1ddff9112e00519b09dd9e ""
   "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb" 1248133631 34694 ad62b13721ee8eda1dcc8993c8bd7041 ""
+  "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb" 1724614892 32409 aee30089ce2d804d7327a2f8ccff0462 ""
+  "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI5.pfb" 1572128992 35776 3cf3205badc1a3a38b65b34f4cef78d9 ""
+  "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/newtx/NewTXMI7.pfb" 1572128992 34733 61fa3c01fac511e451670c1b454ff211 ""
+  "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/newtx/txexs.pfb" 1621283831 33424 f912ebe54685d0a65d3c046e3d517e38 ""
+  "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb" 1736550153 65081 1217ccf27de85b7db49806ee29c16745 ""
+  "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/newtx/txsys.pfb" 1724614892 45985 fd5f8adcc4f0e93e9a95469e12126723 ""
+  "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/newtx/ztmr.pfb" 1698694482 286816 82db2bfe6920054b1a43661c07078412 ""
   "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/public/rsfs/rsfs10.pfb" 1229303445 16077 4737ac34f0fb5608550f3780a0202c22 ""
   "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/urw/symbol/usyr.pfb" 1136849748 33709 b09d2e140b7e807d3a97058263ab6693 ""
   "/data1/home/ahn40200393/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb" 1136849748 44729 811d6c62865936705a31c797a1d5dada ""
@@ -126,17 +133,17 @@
   "/data1/home/ahn40200393/texlive/2025/texmf.cnf" 1761030962.22773 496 01ab80fa0036a81d2df86fb0ac70c709 ""
   "img/Solovev.png" 1782209120.6119 1784275 73cef8882539283f5ca7645d8457dbd2 ""
   "img/boundary_case.png" 1782639339.60242 1512859 18c8e39f430749c30b92b301f548d86d ""
+  "img/figure.pdf" 1784049459.88029 86939 a227cb11b6924e32971ec6c7b848fc60 ""
   "img/loss_graph.png" 1783877920.41092 351335 f165e064d3511909103b1cc72b129bbf ""
   "img/mast_u_diverted.png" 1782658345.11968 2557634 c295bac5960ea23e206522b8bda31f6e ""
   "img/mast_u_limited.png" 1783246626.07484 2168785 3537e60affbf0f65a87f4b6bb9e11bcc ""
-  "img/model.png" 1783877920.41092 246754 9c90fdbb02f6ae4f4a930019f51c30c6 ""
   "img/solovev_shape.png" 1783316525.45925 133742 26d0c446abb644d4063702ca82d4ad3b ""
   "img/tokamak.png" 1782635670.81111 205207 6fa9c1f808b9006ec8f761f22757915f ""
-  "main.aux" 1784049379.16458 18983 96861c0327c31333ac7ecef824b1885a "pdflatex"
+  "main.aux" 1784049475.98023 18983 96861c0327c31333ac7ecef824b1885a "pdflatex"
   "main.bbl" 1784049370.98461 17421 69db7fd992b8aa6318ab2aede65975d0 "bibtex main"
   "main.eps" 1783065682.80677 286 240e01e547b56ebd62e19ba1e85adf80 ""
-  "main.out" 1784049379.16458 1159 eb85309e90552481a6d727a1cee02530 "pdflatex"
-  "main.tex" 1784049361.84064 83890 4deaf52266c3498f4dee0dff8115d6c0 ""
+  "main.out" 1784049475.98023 1159 eb85309e90552481a6d727a1cee02530 "pdflatex"
+  "main.tex" 1784049467.35226 83891 018ab004ee21757629629f8e694fc4fb ""
   "svglov3.clo" 1780643946.53894 3809 f8e29af71acd1bd1b2a58b6166058c66 ""
   "svjour3.cls" 1780643946.63094 47679 580d73513215963b6ad3ff0c4282b766 ""
   (generated)
